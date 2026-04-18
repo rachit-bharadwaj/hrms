@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import connectDB from "../database/connection";
-import { users } from "../database/schema";
+import { users, roles } from "../database/schema";
 import { eq } from "drizzle-orm";
 import crypto from "node:crypto";
 import jwt from "jsonwebtoken";
@@ -27,6 +27,10 @@ export const login = async (req: Request, res: Response) => {
 
     const user = userResult[0];
 
+    // Fetch role details
+    const roleResult = await db.select().from(roles).where(eq(roles.id, user.roleId)).limit(1);
+    const roleName = roleResult.length > 0 ? roleResult[0].name : "User";
+
     // Check password
     if (user.passwordHash !== hashPassword(password)) {
       return res.status(401).json({ status: "error", message: "Invalid email or password" });
@@ -41,7 +45,7 @@ export const login = async (req: Request, res: Response) => {
 
     // Generate JWT
     const token = jwt.sign(
-      { id: user.id, email: user.email, roleId: user.roleId },
+      { id: user.id, email: user.email, roleId: user.roleId, role: roleName },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN as any }
     );
