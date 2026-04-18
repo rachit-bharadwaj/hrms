@@ -1,40 +1,38 @@
 import {
   date,
-  integer,
-  pgEnum,
   pgTable,
-  serial,
   text,
   timestamp,
+  uuid,
   varchar,
 } from "drizzle-orm/pg-core";
 import { employees } from "./employees";
-import { users } from "./users";
-
-export const taskStatusEnum = pgEnum("task_status", [
-  "TO_DO",
-  "IN_PROGRESS",
-  "COMPLETED",
-]);
-export const taskPriorityEnum = pgEnum("task_priority", [
-  "LOW",
-  "MEDIUM",
-  "HIGH",
-]);
 
 export const tasks = pgTable("tasks", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
-  assignedTo: integer("assigned_to")
+  assignedByEmployeeId: uuid("assigned_by_employee_id")
     .references(() => employees.id)
     .notNull(),
-  assignedBy: integer("assigned_by")
-    .references(() => users.id)
+  assignedToEmployeeId: uuid("assigned_to_employee_id")
+    .references(() => employees.id)
     .notNull(),
-  status: taskStatusEnum("status").default("TO_DO").notNull(),
-  priority: taskPriorityEnum("priority").default("MEDIUM").notNull(),
+  status: varchar("status", { length: 50 }).default("TO_DO").notNull(),
+  priority: varchar("priority", { length: 50 }).default("MEDIUM").notNull(),
   dueDate: date("due_date"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const taskComments = pgTable("task_comments", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  taskId: uuid("task_id")
+    .references(() => tasks.id)
+    .notNull(),
+  employeeId: uuid("employee_id")
+    .references(() => employees.id)
+    .notNull(),
+  comment: text("comment").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });

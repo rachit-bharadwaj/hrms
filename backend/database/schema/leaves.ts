@@ -1,55 +1,62 @@
 import {
+  boolean,
   date,
-  decimal,
+  doublePrecision,
   integer,
-  pgEnum,
   pgTable,
-  serial,
   text,
   timestamp,
+  uuid,
+  varchar,
 } from "drizzle-orm/pg-core";
 import { employees } from "./employees";
-import { users } from "./users";
 
-export const leaveTypeEnum = pgEnum("leave_type", ["CL", "SL", "EL"]);
-export const leaveStatusEnum = pgEnum("leave_status", [
-  "PENDING",
-  "APPROVED",
-  "REJECTED",
-]);
-
-export const leaveApplications = pgTable("leave_applications", {
-  id: serial("id").primaryKey(),
-  employeeId: integer("employee_id")
-    .references(() => employees.id)
-    .notNull(),
-  leaveType: leaveTypeEnum("leave_type").notNull(),
-  startDate: date("start_date").notNull(),
-  endDate: date("end_date").notNull(),
-  reason: text("reason").notNull(),
-  status: leaveStatusEnum("status").default("PENDING").notNull(),
-  approvedBy: integer("approved_by").references(() => users.id),
-  managerComment: text("manager_comment"),
+export const leaveTypes = pgTable("leave_types", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  code: varchar("code", { length: 50 }).notNull().unique(),
+  name: varchar("name", { length: 100 }).notNull(),
+  annualQuota: doublePrecision("annual_quota").notNull(),
+  maxCarryForward: doublePrecision("max_carry_forward").default(0).notNull(),
+  encashable: boolean("encashable").default(false).notNull(),
+  requiresApprovalBy: varchar("requires_approval_by", { length: 50 }), // e.g., MANAGER, HR
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const leaveBalances = pgTable("leave_balances", {
-  id: serial("id").primaryKey(),
-  employeeId: integer("employee_id")
+  id: uuid("id").primaryKey().defaultRandom(),
+  employeeId: uuid("employee_id")
     .references(() => employees.id)
-    .notNull()
-    .unique(),
-  clBalance: decimal("cl_balance", { precision: 4, scale: 1 })
-    .default("0.0")
     .notNull(),
-  slBalance: decimal("sl_balance", { precision: 4, scale: 1 })
-    .default("0.0")
-    .notNull(),
-  elBalance: decimal("el_balance", { precision: 4, scale: 1 })
-    .default("0.0")
+  leaveTypeId: uuid("leave_type_id")
+    .references(() => leaveTypes.id)
     .notNull(),
   year: integer("year").notNull(),
+  openingBalance: doublePrecision("opening_balance").default(0).notNull(),
+  accrued: doublePrecision("accrued").default(0).notNull(),
+  availed: doublePrecision("availed").default(0).notNull(),
+  closingBalance: doublePrecision("closing_balance").default(0).notNull(),
+});
+
+export const leaveRequests = pgTable("leave_requests", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  employeeId: uuid("employee_id")
+    .references(() => employees.id)
+    .notNull(),
+  leaveTypeId: uuid("leave_type_id")
+    .references(() => leaveTypes.id)
+    .notNull(),
+  startDate: date("start_date").notNull(),
+  endDate: date("end_date").notNull(),
+  days: doublePrecision("days").notNull(),
+  reason: text("reason").notNull(),
+  status: varchar("status", { length: 50 }).default("PENDING").notNull(), // PENDING, APPROVED, REJECTED
+  appliedAt: timestamp("applied_at").defaultNow().notNull(),
+  approverEmployeeId: uuid("approver_employee_id").references(
+    () => employees.id,
+  ),
+  decisionAt: timestamp("decision_at"),
+  decisionRemarks: text("decision_remarks"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

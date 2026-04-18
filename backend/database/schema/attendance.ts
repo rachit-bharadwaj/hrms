@@ -1,30 +1,24 @@
 import {
   date,
-  integer,
-  pgEnum,
+  doublePrecision,
   pgTable,
-  serial,
-  time,
+  text,
   timestamp,
+  uuid,
 } from "drizzle-orm/pg-core";
 import { employees } from "./employees";
 
-export const attendanceStatusEnum = pgEnum("attendance_status", [
-  "PRESENT",
-  "ABSENT",
-  "HALF_DAY",
-  "WFH",
-]);
-
-export const attendance = pgTable("attendance", {
-  id: serial("id").primaryKey(),
-  employeeId: integer("employee_id")
+export const attendanceRecords = pgTable("attendance_records", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  employeeId: uuid("employee_id")
     .references(() => employees.id)
     .notNull(),
   date: date("date").notNull(),
-  status: attendanceStatusEnum("status").notNull(),
-  checkIn: time("check_in"),
-  checkOut: time("check_out"),
+  status: text("status").notNull(),
+  checkInTime: timestamp("check_in_time"),
+  checkOutTime: timestamp("check_out_time"),
+  workHours: doublePrecision("work_hours"),
+  remarks: text("remarks"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
