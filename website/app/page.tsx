@@ -1,3 +1,4 @@
 export default function Home() {
-  return <div>HRMS</div>;
+  return <div className="font-bricolage-grotesque text-9xl">Harbor</div>;
 }
+
