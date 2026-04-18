@@ -32,7 +32,6 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Potentially clear local storage and redirect to login if session expires
       if (typeof window !== "undefined") {
         localStorage.removeItem("harbor_token");
         window.location.href = "/login";
