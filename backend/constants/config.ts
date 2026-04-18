@@ -29,3 +29,7 @@ export const CORS_ORIGINS = process.env.CORS_ORIGINS
   : "*";
 
 export const DATABASE_URL = process.env.DATABASE_URL;
+
+export const JWT_SECRET = process.env.JWT_SECRET || "harbor_secret_key_123";
+export const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1d";
+
