@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import connectDB from "../database/connection";
-import { users, roles, employees } from "../database/schema";
+import { users, roles, employees, departments } from "../database/schema";
 import { eq } from "drizzle-orm";
 import crypto from "node:crypto";
 import jwt from "jsonwebtoken";
@@ -90,6 +90,112 @@ export const getMe = async (req: any, res: Response) => {
         designation: employee?.designation || null,
       },
     });
+  } catch (error: any) {
+    res.status(500).json({ status: "error", message: error.message });
+  }
+};
+
+export const updateProfile = async (req: any, res: Response) => {
+  const { name, email } = req.body;
+  const userId = req.user.id;
+
+  try {
+    const db = await connectDB();
+    
+    // Update user table
+    if (email) {
+      await db.update(users).set({ email, updatedAt: new Date() }).where(eq(users.id, userId));
+    }
+
+    // Update employee table
+    if (name) {
+      const parts = name.trim().split(" ");
+      const firstName = parts[0];
+      const lastName = parts.slice(1).join(" ") || "";
+
+      // Check if employee record exists
+      const existingEmployee = await db
+        .select()
+        .from(employees)
+        .where(eq(employees.userId, userId))
+        .limit(1);
+
+      if (existingEmployee.length > 0) {
+        // Update existing
+        await db
+          .update(employees)
+          .set({ firstName, lastName, updatedAt: new Date() })
+          .where(eq(employees.userId, userId));
+      } else {
+        // Create new employee record
+        // Ensure at least one department exists
+        let deptId: string;
+        const depts = await db.select().from(departments).limit(1);
+        if (depts.length > 0) {
+          deptId = depts[0].id;
+        } else {
+          const [newDept] = await db
+            .insert(departments)
+            .values({
+              name: "General",
+              code: "GEN",
+            })
+            .returning();
+          deptId = newDept.id;
+        }
+
+        await db.insert(employees).values({
+          userId,
+          firstName,
+          lastName,
+          emailOfficial: email || "user@company.com",
+          employeeCode: `EMP-${userId.slice(0, 8).toUpperCase()}`,
+          dob: "1990-01-01",
+          gender: "Other",
+          phone: "0000000000",
+          addressLine1: "N/A",
+          city: "N/A",
+          state: "N/A",
+          pincode: "000000",
+          country: "N/A",
+          designation: "Employee",
+          departmentId: deptId,
+          joiningDate: new Date().toISOString().split("T")[0],
+          employmentType: "Full-time",
+          status: "Active",
+        });
+      }
+    }
+
+    res.status(200).json({ status: "success", message: "Profile updated successfully" });
+  } catch (error: any) {
+    res.status(500).json({ status: "error", message: error.message });
+  }
+};
+
+export const changePassword = async (req: any, res: Response) => {
+  const { currentPassword, newPassword } = req.body;
+  const userId = req.user.id;
+
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ status: "error", message: "Current and new password are required" });
+  }
+
+  try {
+    const db = await connectDB();
+    const userResult = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+
+    if (userResult.length === 0) {
+      return res.status(404).json({ status: "error", message: "User not found" });
+    }
+
+    if (userResult[0].passwordHash !== hashPassword(currentPassword)) {
+      return res.status(401).json({ status: "error", message: "Incorrect current password" });
+    }
+
+    await db.update(users).set({ passwordHash: hashPassword(newPassword), updatedAt: new Date() }).where(eq(users.id, userId));
+
+    res.status(200).json({ status: "success", message: "Password changed successfully" });
   } catch (error: any) {
     res.status(500).json({ status: "error", message: error.message });
   }
