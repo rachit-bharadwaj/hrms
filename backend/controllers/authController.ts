@@ -45,7 +45,13 @@ export const login = async (req: Request, res: Response) => {
 
     // Generate JWT
     const token = jwt.sign(
-      { id: user.id, email: user.email, roleId: user.roleId, role: roleName },
+      { 
+        id: user.id, 
+        email: user.email, 
+        roleId: user.roleId, 
+        role: roleName,
+        // mustChangePassword: user.mustChangePassword 
+      },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN as any }
     );
@@ -193,7 +199,11 @@ export const changePassword = async (req: any, res: Response) => {
       return res.status(401).json({ status: "error", message: "Incorrect current password" });
     }
 
-    await db.update(users).set({ passwordHash: hashPassword(newPassword), updatedAt: new Date() }).where(eq(users.id, userId));
+    await db.update(users).set({ 
+      passwordHash: hashPassword(newPassword), 
+      // mustChangePassword: false,
+      updatedAt: new Date() 
+    }).where(eq(users.id, userId));
 
     res.status(200).json({ status: "success", message: "Password changed successfully" });
   } catch (error: any) {

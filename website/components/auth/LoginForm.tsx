@@ -32,8 +32,12 @@ export default function LoginForm() {
       // 2. Set cookie for SSR
       document.cookie = `harbor_token=${data.token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
 
-      // 3. Redirect
-      router.push("/");
+      // 3. Redirect based on password reset requirement
+      if (data.user?.mustChangePassword) {
+        router.push("/reset-password");
+      } else {
+        router.push("/");
+      }
     } catch (err: any) {
       const message =
         err.response?.data?.message ||

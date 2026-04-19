@@ -2,7 +2,18 @@ import { desc, eq } from "drizzle-orm";
 import { Request, Response } from "express";
 import crypto from "node:crypto";
 import connectDB from "../database/connection";
-import { users } from "../database/schema";
+import { 
+  users, 
+  employees, 
+  payrollRuns, 
+  attendanceRecords, 
+  leaveRequests,
+  leaveBalances,
+  tasks, 
+  payslips, 
+  salaryStructures,
+  taskComments
+} from "../database/schema";
 
 // Simple hash function using built-in crypto since 외부 lib installation failed
 const hashPassword = (password: string) => {
@@ -69,6 +80,7 @@ export const createUser = async (req: Request, res: Response) => {
         email,
         passwordHash,
         roleId,
+        // mustChangePassword: true,
       })
       .returning();
 
@@ -124,6 +136,38 @@ export const deleteUser = async (req: Request, res: Response) => {
   const { id } = req.params as { id: string };
   try {
     const db = await connectDB();
+
+    // 1. Check if user has processed any payroll runs (audit history)
+    const processedPayroll = await db.select().from(payrollRuns).where(eq(payrollRuns.processedByUserId, id)).limit(1);
+    if (processedPayroll.length > 0) {
+      return res.status(400).json({ 
+        status: "error", 
+        message: "Cannot delete user because they have processed payroll records in the system. For audit consistency, please deactivate this account instead of deleting it." 
+      });
+    }
+
+    // 2. Fetch employee ID if it exists
+    const employee = await db.select().from(employees).where(eq(employees.userId, id)).limit(1);
+    
+    if (employee.length > 0) {
+      const empId = employee[0].id;
+
+      // 3. Delete all employee-related data to avoid FK violations
+      // This is for dev cleanup. In production, we'd normally soft-delete or prevent if data exists.
+      await db.delete(attendanceRecords).where(eq(attendanceRecords.employeeId, empId));
+      await db.delete(leaveRequests).where(eq(leaveRequests.employeeId, empId));
+      await db.delete(leaveBalances).where(eq(leaveBalances.employeeId, empId));
+      await db.delete(taskComments).where(eq(taskComments.employeeId, empId));
+      await db.delete(tasks).where(eq(tasks.assignedToEmployeeId, empId));
+      await db.delete(tasks).where(eq(tasks.assignedByEmployeeId, empId));
+      await db.delete(payslips).where(eq(payslips.employeeId, empId));
+      await db.delete(salaryStructures).where(eq(salaryStructures.employeeId, empId));
+      
+      // 4. Finally delete employee record
+      await db.delete(employees).where(eq(employees.id, empId));
+    }
+
+    // 5. Delete the user
     const deletedUser = await db
       .delete(users)
       .where(eq(users.id, id))
