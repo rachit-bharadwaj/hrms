@@ -21,7 +21,8 @@ import {
   leaveRoutes,
   payrollRoutes,
   holidayRoutes,
-  taskRoutes
+  taskRoutes,
+  dashboardRoutes
 } from "./routes";
 import { authenticate, authorize } from "./middleware/authMiddleware";
 
@@ -71,6 +72,7 @@ app.use("/api/leaves", leaveRoutes);
 app.use("/api/payroll", payrollRoutes);
 app.use("/api/holidays", holidayRoutes);
 app.use("/api/tasks", taskRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 // start the server
 const startServer = async () => {

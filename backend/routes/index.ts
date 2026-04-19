@@ -10,6 +10,7 @@ import leaveRoutes from "./leaveRoutes";
 import payrollRoutes from "./payrollRoutes";
 import holidayRoutes from "./holidayRoutes";
 import taskRoutes from "./taskRoutes";
+import dashboardRoutes from "./dashboardRoutes";
 
 export { 
   baseRoutes, 
@@ -23,5 +24,6 @@ export {
   leaveRoutes,
   payrollRoutes,
   holidayRoutes,
-  taskRoutes 
+  taskRoutes,
+  dashboardRoutes
 };
