@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import api from "@/lib/api";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -35,7 +35,9 @@ export default function LoginForm() {
       // 3. Redirect
       router.push("/");
     } catch (err: any) {
-      const message = err.response?.data?.message || "Invalid email or password. Please try again.";
+      const message =
+        err.response?.data?.message ||
+        "Invalid email or password. Please try again.";
       setError(message);
     } finally {
       setIsLoading(false);
@@ -46,9 +48,9 @@ export default function LoginForm() {
     <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
       {error && (
         <div className="relative group animate-in fade-in slide-in-from-top-4 duration-500">
-          <div className="absolute -inset-1 bg-gradient-to-r from-red-500/20 to-orange-500/20 rounded-[20px] blur-md group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+          <div className="absolute -inset-1 bg-linear-to-r from-red-500/20 to-orange-500/20 rounded-[20px] blur-md group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
           <div className="relative flex items-center gap-3 bg-white/60 backdrop-blur-md border border-red-100 p-4 rounded-2xl shadow-sm">
-            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-red-50 flex items-center justify-center">
+            <div className="shrink-0 w-8 h-8 rounded-full bg-red-50 flex items-center justify-center">
               <svg
                 width="16"
                 height="16"
@@ -115,7 +117,7 @@ export default function LoginForm() {
         disabled={isLoading}
         className="relative group w-full bg-blue-600 py-4 rounded-2xl transition-all shadow-xl shadow-blue-500/20 active:scale-[0.98] overflow-hidden disabled:opacity-70"
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div className="absolute inset-0 bg-linear-to-r from-blue-700 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
         <span className="relative z-10 text-white font-bold tracking-wide flex items-center justify-center gap-3">
           {isLoading ? (
             <>

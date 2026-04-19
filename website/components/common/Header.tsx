@@ -95,7 +95,7 @@ export default function Header() {
 
         {/* Dropdown Menu */}
         {isDropdownOpen && (
-          <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.08)] py-2 z-[100] animate-in fade-in zoom-in duration-200 origin-top-right">
+          <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.08)] py-2 z-100 animate-in fade-in zoom-in duration-200 origin-top-right">
             <div className="px-4 py-2 border-b border-slate-50 mb-1">
               <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                 User Account
