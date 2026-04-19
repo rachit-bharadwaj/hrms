@@ -41,7 +41,14 @@ export default function Header() {
   }, []);
 
   const handleLogout = () => {
+    // 1. Clear session from localStorage
     localStorage.removeItem("harbor_token");
+    localStorage.removeItem("harbor_user");
+    
+    // 2. Clear cookie
+    document.cookie = "harbor_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+    
+    // 3. Redirect to login
     router.push("/login");
   };
 

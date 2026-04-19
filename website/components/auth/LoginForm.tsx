@@ -125,14 +125,10 @@ export default function LoginForm() {
               Processing...
             </>
           ) : (
-            "Authenticate Session"
+            "Login"
           )}
         </span>
       </button>
-
-      <p className="text-center text-xs text-slate-400 font-medium">
-        Secure encrypted connection enabled
-      </p>
     </form>
   );
 }
