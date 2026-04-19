@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import connectDB from "../database/connection";
-import { users, roles } from "../database/schema";
+import { users, roles, employees } from "../database/schema";
 import { eq } from "drizzle-orm";
 import crypto from "node:crypto";
 import jwt from "jsonwebtoken";
@@ -57,6 +57,38 @@ export const login = async (req: Request, res: Response) => {
       message: "Successfully logged in",
       token,
       user: userWithoutPassword,
+    });
+  } catch (error: any) {
+    res.status(500).json({ status: "error", message: error.message });
+  }
+};
+
+export const getMe = async (req: any, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ status: "error", message: "Authentication required" });
+  }
+
+  try {
+    const db = await connectDB();
+    const userResult = await db.select().from(users).where(eq(users.id, req.user.id)).limit(1);
+
+    if (userResult.length === 0) {
+      return res.status(404).json({ status: "error", message: "User not found" });
+    }
+
+    const employeeResult = await db.select().from(employees).where(eq(employees.userId, req.user.id)).limit(1);
+    
+    const { passwordHash, ...userWithoutPassword } = userResult[0];
+    const employee = employeeResult.length > 0 ? employeeResult[0] : null;
+
+    res.status(200).json({
+      status: "success",
+      user: {
+        ...userWithoutPassword,
+        name: employee ? `${employee.firstName} ${employee.lastName}` : "User",
+        avatar: employee?.photoUrl || null,
+        designation: employee?.designation || null,
+      },
     });
   } catch (error: any) {
     res.status(500).json({ status: "error", message: error.message });
