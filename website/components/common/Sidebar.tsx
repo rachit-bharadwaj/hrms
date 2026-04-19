@@ -44,7 +44,7 @@ const SidebarItem = ({
           : "text-slate-400 hover:text-slate-600 hover:bg-slate-100/80"
       }`}
     >
-      <div className="relative flex-shrink-0">
+      <div className="relative shrink-0">
         <Icon
           size={20}
           strokeWidth={isActive ? 2 : 1.8}
@@ -67,7 +67,7 @@ const SidebarItem = ({
 
       {/* Tooltip (only when collapsed) */}
       {!isExpanded && (
-        <div className="absolute left-[calc(100%+16px)] px-3 py-1.5 rounded-lg bg-slate-900 text-white text-[11px] font-medium opacity-0 group-hover:opacity-100 translate-x-[-10px] group-hover:translate-x-0 transition-all duration-200 whitespace-nowrap pointer-events-none z-[100] shadow-xl">
+        <div className="absolute left-[calc(100%+16px)] px-3 py-1.5 rounded-lg bg-slate-900 text-white text-[11px] font-medium opacity-0 group-hover:opacity-100 translate-x-[-10px] group-hover:translate-x-0 transition-all duration-200 whitespace-nowrap pointer-events-none z-100 shadow-xl">
           {label}
           <div className="absolute right-full top-1/2 -translate-y-1/2 border-[6px] border-transparent border-r-slate-900" />
         </div>
@@ -105,16 +105,14 @@ export default function Sidebar() {
 
   return (
     <aside
-      className={`fixed left-0 top-0 h-screen flex flex-col transition-all duration-300 ease-in-out bg-[#F9FAFB] border-r border-slate-200/60 z-[60] ${
-        isExpanded
-          ? "w-[240px] items-start px-4 py-6"
-          : "w-[72px] items-center py-6"
+      className={`fixed left-0 top-0 h-screen flex flex-col transition-all duration-300 ease-in-out bg-[#F9FAFB] border-r border-slate-200/60 z-60 p-5 ${
+        isExpanded ? "w-[240px] items-start" : "w-[72px] items-center"
       }`}
     >
       {/* Top Menu Icon */}
       <div
         onClick={() => setIsExpanded(!isExpanded)}
-        className={`mb-8 p-3 cursor-pointer hover:bg-slate-100 rounded-xl transition-all duration-200 text-slate-500 hover:text-slate-700 flex items-center ${
+        className={`mb-8 cursor-pointer hover:bg-slate-100 rounded-xl transition-all duration-200 text-slate-500 hover:text-slate-700 flex items-center ${
           isExpanded ? "w-full gap-3" : "justify-center"
         }`}
       >
