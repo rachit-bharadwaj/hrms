@@ -9,7 +9,15 @@ import { getLocalIpAddress } from "./utils/config";
 import { configureLogger } from "./utils/logger";
 
 // Routes
-import { baseRoutes, userRoutes, roleRoutes, permissionRoutes, authRoutes } from "./routes";
+import { 
+  baseRoutes, 
+  userRoutes, 
+  roleRoutes, 
+  permissionRoutes, 
+  authRoutes,
+  employeeRoutes,
+  departmentRoutes 
+} from "./routes";
 import { authenticate, authorize } from "./middleware/authMiddleware";
 
 dotenv.config();
@@ -48,6 +56,8 @@ app.use("/api", authenticate); // All /api/* routes now require valid JWT
 app.use("/api/users", userRoutes); 
 app.use("/api/roles", authorize(["Super Admin"]), roleRoutes);
 app.use("/api/permissions", authorize(["Super Admin"]), permissionRoutes);
+app.use("/api/employees", employeeRoutes);
+app.use("/api/departments", departmentRoutes);
 
 // start the server
 const startServer = async () => {
