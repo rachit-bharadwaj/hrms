@@ -3,18 +3,12 @@
 import { Logo } from "@/partials/common";
 import {
   BarChart3,
-  Briefcase,
-  Building2,
-  Calendar,
-  Circle,
   HelpCircle,
   LockKeyhole,
-  Mail,
   Menu,
   Settings,
   Shield,
   User,
-  Users,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -91,15 +85,9 @@ export default function Sidebar() {
 
   const navItems = [
     { icon: BarChart3, label: "Dashboard", href: "/" },
-    { icon: Circle, label: "Activity", href: "/activity" },
     { icon: User, label: "Users", href: "/users" },
     { icon: Shield, label: "Roles", href: "/roles" },
     { icon: LockKeyhole, label: "Permissions", href: "/permissions" },
-    { icon: Briefcase, label: "Jobs", href: "/jobs" },
-    { icon: Building2, label: "Company", href: "/company" },
-    { icon: Calendar, label: "Schedule", href: "/schedule" },
-    { icon: Mail, label: "Messages", href: "/messages" },
-    { icon: Users, label: "Team", href: "/team" },
   ];
 
   const bottomItems = [
