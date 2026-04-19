@@ -405,7 +405,7 @@ export default function AccountPage() {
                     <KeyRound size={18} />
                   )}
                   <span>
-                    {isChangingPassword ? "Verifying..." : "Update Security"}
+                    {isChangingPassword ? "Verifying..." : "Update Password"}
                   </span>
                 </button>
               </div>
