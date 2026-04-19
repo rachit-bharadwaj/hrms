@@ -60,9 +60,13 @@ export default function RolePermissionsModal({
     try {
       const isAssigned = assignedPermissionIds.includes(permissionId);
       if (isAssigned) {
-        // Logic for unassigning - currently backend might lack this, so we'll simulate or add it later
-        // For now, let's assume the user can only assign or we'll add the unassign endpoint
-        console.log("Unassigning...");
+        await api.post("/roles/remove-permission", {
+          roleId: role.id,
+          permissionId,
+        });
+        setAssignedPermissionIds(
+          assignedPermissionIds.filter((pId) => pId !== permissionId),
+        );
       } else {
         await api.post("/roles/assign-permission", {
           roleId: role.id,

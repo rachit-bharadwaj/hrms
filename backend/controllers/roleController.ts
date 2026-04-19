@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import connectDB from "../database/connection";
 import { roles, rolePermissions, permissions, users } from "../database/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 
 export const getRoles = async (req: Request, res: Response) => {
   try {
@@ -123,6 +123,23 @@ export const assignPermissionToRole = async (req: Request, res: Response) => {
     const db = await connectDB();
     const newAssignment = await db.insert(rolePermissions).values({ roleId, permissionId }).returning();
     res.status(201).json({ status: "success", data: newAssignment[0] });
+  } catch (error: any) {
+    res.status(500).json({ status: "error", message: error.message });
+  }
+};
+
+export const removePermissionFromRole = async (req: Request, res: Response) => {
+  const { roleId, permissionId } = req.body;
+
+  if (!roleId || !permissionId) {
+    return res.status(400).json({ status: "error", message: "roleId and permissionId are required" });
+  }
+
+  try {
+    const db = await connectDB();
+    await db.delete(rolePermissions)
+      .where(and(eq(rolePermissions.roleId, roleId), eq(rolePermissions.permissionId, permissionId)));
+    res.status(200).json({ status: "success", message: "Permission removed from role successfully" });
   } catch (error: any) {
     res.status(500).json({ status: "error", message: error.message });
   }
