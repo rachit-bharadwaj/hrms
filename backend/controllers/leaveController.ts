@@ -50,10 +50,12 @@ export const applyLeave = async (req: AuthRequest, res: Response) => {
       curr.setDate(curr.getDate() + 1);
     }
 
-    if (calculatedDays !== Number(days)) {
-       // Allow flexibility but log or warning could be here. 
-       // For now, trust the requested days but validate against balance.
+    if (calculatedDays <= 0) {
+      return res.status(400).json({ status: "error", message: "No valid working days in the selected range" });
     }
+
+    // Force server-calculated days
+    const finalDays = calculatedDays;
 
     // Check balance
     const balance = await db
@@ -68,10 +70,10 @@ export const applyLeave = async (req: AuthRequest, res: Response) => {
       )
       .limit(1);
 
-    if (!balance[0] || balance[0].closingBalance < days) {
+    if (!balance[0] || balance[0].closingBalance < finalDays) {
       return res.status(400).json({ 
         status: "error", 
-        message: `Insufficient leave balance. Available: ${balance[0]?.closingBalance || 0}` 
+        message: `Insufficient leave balance. Available: ${balance[0]?.closingBalance || 0}, Required: ${finalDays}` 
       });
     }
 
@@ -82,7 +84,7 @@ export const applyLeave = async (req: AuthRequest, res: Response) => {
         leaveTypeId,
         startDate,
         endDate,
-        days,
+        days: finalDays,
         reason,
         status: "PENDING",
       })
@@ -243,12 +245,23 @@ export const carryForwardLeaves = async (req: Request, res: Response) => {
     const { fromYear, toYear } = req.body;
     const db = await connectDB();
     
-    // Fetch all current balances
-    const currentBalances = await db.select().from(leaveBalances).where(eq(leaveBalances.year, fromYear));
+    const currentBalances = await db
+      .select({
+        bal: leaveBalances,
+        type: leaveTypes
+      })
+      .from(leaveBalances)
+      .innerJoin(leaveTypes, eq(leaveBalances.leaveTypeId, leaveTypes.id))
+      .where(eq(leaveBalances.year, fromYear));
     
-    for (const bal of currentBalances) {
-      // Logic: Carry forward max 10 days of EL (Earned Leave)
-      const carryAmount = Math.min(bal.closingBalance, 10);
+    for (const record of currentBalances) {
+      const bal = record.bal;
+      const type = record.type;
+      
+      // Logic: Carry forward based on leave type config
+      const carryAmount = Math.min(bal.closingBalance, type.maxCarryForward || 0);
+      
+      if (carryAmount <= 0) continue;
       
       // Check if next year balance already exists
       const existing = await db
@@ -283,22 +296,33 @@ export const encashLeave = async (req: Request, res: Response) => {
     const db = await connectDB();
     
     const balance = await db
-      .select()
+      .select({
+        bal: leaveBalances,
+        type: leaveTypes
+      })
       .from(leaveBalances)
+      .innerJoin(leaveTypes, eq(leaveBalances.leaveTypeId, leaveTypes.id))
       .where(and(eq(leaveBalances.employeeId, employeeId), eq(leaveBalances.leaveTypeId, leaveTypeId), eq(leaveBalances.year, new Date().getFullYear())))
       .limit(1);
 
-    if (!balance[0] || balance[0].closingBalance < days) {
+    if (!balance[0]) return res.status(404).json({ status: "error", message: "Balance not found" });
+    
+    if (!balance[0].type.encashable) {
+      return res.status(400).json({ status: "error", message: "This leave type is not encashable" });
+    }
+
+    if (balance[0].bal.closingBalance < days) {
       return res.status(400).json({ status: "error", message: "Insufficient balance" });
     }
 
     await db
       .update(leaveBalances)
       .set({
-        closingBalance: balance[0].closingBalance - days,
+        closingBalance: balance[0].bal.closingBalance - days,
+        availed: balance[0].bal.availed + days,
         updatedAt: new Date(),
       })
-      .where(eq(leaveBalances.id, balance[0].id));
+      .where(eq(leaveBalances.id, balance[0].bal.id));
 
     res.status(200).json({ status: "success", message: `Successfully encashed ${days} days` });
   } catch (error: any) {

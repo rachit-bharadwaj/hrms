@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import connectDB from "../database/connection";
-import { salaryStructures, payrollRuns, payslips, employees, users, departments } from "../database/schema";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { salaryStructures, payrollRuns, payslips, employees, users, departments, attendanceRecords } from "../database/schema";
+import { eq, and, desc, sql, between } from "drizzle-orm";
 import { AuthRequest } from "../middleware/authMiddleware";
 
 export const getSalaryStructure = async (req: Request, res: Response) => {
@@ -84,6 +84,26 @@ export const processPayroll = async (req: AuthRequest, res: Response) => {
     for (const emp of activeEmployees) {
       const grossEarnings = emp.basic + emp.hra + emp.otherAllowances + (emp.otherEarnings || 0);
       
+      // Calculate LWP (Leave Without Pay) pro-rata
+      const totalDaysInMonth = new Date(year, month, 0).getDate();
+      const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
+      const endDate = `${year}-${month.toString().padStart(2, '0')}-${totalDaysInMonth}`;
+
+      const absentRecords = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(attendanceRecords)
+        .where(
+          and(
+            eq(attendanceRecords.employeeId, emp.employeeId),
+            eq(attendanceRecords.status, "Absent"),
+            between(attendanceRecords.date, startDate, endDate)
+          )
+        );
+
+      const lwpDays = absentRecords[0].count;
+      const dailyRate = grossEarnings / totalDaysInMonth;
+      const deductionForAbsence = Math.round(lwpDays * dailyRate);
+
       let pfEmployee = 0;
       let pfEmployer = 0;
       if (emp.pfApplicable) {
@@ -99,7 +119,7 @@ export const processPayroll = async (req: AuthRequest, res: Response) => {
       }
 
       const tds = Math.round((grossEarnings * (emp.tdsRatePercent || 0)) / 100);
-      const netPay = grossEarnings - pfEmployee - esiEmployee - tds;
+      const netPay = grossEarnings - pfEmployee - esiEmployee - tds - deductionForAbsence;
 
       const payslipNum = `PAY-${year}${month.toString().padStart(2, '0')}-${emp.employeeCode}`;
 
@@ -112,6 +132,7 @@ export const processPayroll = async (req: AuthRequest, res: Response) => {
         esiEmployee,
         esiEmployer,
         tds,
+        otherDeductions: deductionForAbsence,
         netPay,
         payslipNumber: payslipNum,
       }).returning();
