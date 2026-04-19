@@ -237,4 +237,4 @@ export default function SalaryStructurePage({ params }: { params: any }) {
     </div>
   );
 }
-旋﹂
+
