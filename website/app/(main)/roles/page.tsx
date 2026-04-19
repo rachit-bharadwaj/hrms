@@ -38,6 +38,10 @@ export default function RolesPage() {
   const [isPermModalOpen, setIsPermModalOpen] = useState(false);
   const [targetRole, setTargetRole] = useState<Role | null>(null);
 
+  // Error & Loading States
+  const [deleteError, setDeleteError] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+
   useEffect(() => {
     fetchRoles();
   }, []);
@@ -66,12 +70,17 @@ export default function RolesPage() {
   const handleDelete = async () => {
     if (!roleToDelete) return;
     try {
+      setDeleteError("");
+      setIsDeleting(true);
       await api.delete(`/roles/${roleToDelete.id}`);
       setIsDeleteConfirmOpen(false);
       setRoleToDelete(null);
       fetchRoles();
-    } catch (error) {
+    } catch (error: any) {
+      setDeleteError(error.response?.data?.message || "Failed to delete role.");
       console.error("Failed to delete role:", error);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -130,6 +139,7 @@ export default function RolesPage() {
                 <button 
                    onClick={() => {
                     setRoleToDelete(role);
+                    setDeleteError("");
                     setIsDeleteConfirmOpen(true);
                   }}
                   className="p-2 hover:bg-red-50 rounded-xl text-slate-400 hover:text-red-600 transition-all border border-transparent hover:border-red-100"
@@ -189,19 +199,33 @@ export default function RolesPage() {
               <AlertCircle size={32} />
             </div>
             <h3 className="text-xl font-bold text-slate-900 mb-2 font-bricolage-grotesque">Delete Role?</h3>
-            <p className="text-sm text-slate-500 font-medium mb-8">
+            <p className="text-sm text-slate-500 font-medium mb-8 text-center px-4">
               Are you sure you want to delete <span className="text-slate-900 font-bold">{roleToDelete?.name}</span>? Users assigned to this role may lose access.
             </p>
+
+            {deleteError && (
+              <div className="bg-red-50 text-red-600 p-4 rounded-2xl text-[11px] font-bold border border-red-100 flex items-start gap-3 mb-6 w-full text-left">
+                <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                <span>{deleteError}</span>
+              </div>
+            )}
+
             <div className="flex flex-col w-full gap-3">
               <button 
                 onClick={handleDelete}
-                className="w-full bg-red-600 hover:bg-red-700 text-white py-4 rounded-2xl text-sm font-bold transition-all shadow-xl shadow-red-500/20 active:scale-95"
+                disabled={isDeleting}
+                className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-70 text-white py-4 rounded-2xl text-sm font-bold transition-all shadow-xl shadow-red-500/20 active:scale-95 flex items-center justify-center gap-2"
               >
-                Yes, Delete Role
+                {isDeleting ? <Loader2 className="animate-spin" size={18} /> : null}
+                {isDeleting ? "Deleting..." : "Yes, Delete Role"}
               </button>
               <button 
-                onClick={() => setIsDeleteConfirmOpen(false)}
-                className="w-full bg-slate-50 hover:bg-slate-100 text-slate-600 py-4 rounded-2xl text-sm font-bold transition-all"
+                onClick={() => {
+                  setIsDeleteConfirmOpen(false);
+                  setDeleteError("");
+                }}
+                disabled={isDeleting}
+                className="w-full bg-slate-50 hover:bg-slate-100 disabled:opacity-50 text-slate-600 py-4 rounded-2xl text-sm font-bold transition-all"
               >
                 Cancel
               </button>

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import connectDB from "../database/connection";
-import { roles, rolePermissions, permissions } from "../database/schema";
+import { roles, rolePermissions, permissions, users } from "../database/schema";
 import { eq, desc } from "drizzle-orm";
 
 export const getRoles = async (req: Request, res: Response) => {
@@ -86,6 +86,20 @@ export const deleteRole = async (req: Request, res: Response) => {
   const { id } = req.params as { id: string };
   try {
     const db = await connectDB();
+
+    // 1. Check if any users are assigned to this role
+    const assignedUsers = await db.select().from(users).where(eq(users.roleId, id)).limit(1);
+    if (assignedUsers.length > 0) {
+      return res.status(400).json({ 
+        status: "error", 
+        message: "Cannot delete role because it is currently assigned to one or more users. Please reassign the users first." 
+      });
+    }
+
+    // 2. Delete associated role permissions first to satisfy foreign key constraints
+    await db.delete(rolePermissions).where(eq(rolePermissions.roleId, id));
+
+    // 3. Delete the role itself
     const deletedRole = await db.delete(roles).where(eq(roles.id, id)).returning();
 
     if (deletedRole.length === 0) {
