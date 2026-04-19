@@ -17,7 +17,8 @@ import {
   authRoutes,
   employeeRoutes,
   departmentRoutes,
-  attendanceRoutes
+  attendanceRoutes,
+  leaveRoutes
 } from "./routes";
 import { authenticate, authorize } from "./middleware/authMiddleware";
 
@@ -60,6 +61,7 @@ app.use("/api/permissions", authorize(["Super Admin"]), permissionRoutes);
 app.use("/api/employees", employeeRoutes);
 app.use("/api/departments", departmentRoutes);
 app.use("/api/attendance", attendanceRoutes);
+app.use("/api/leaves", leaveRoutes);
 
 // start the server
 const startServer = async () => {

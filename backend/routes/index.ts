@@ -6,6 +6,7 @@ import authRoutes from "./authRoutes";
 import employeeRoutes from "./employeeRoutes";
 import departmentRoutes from "./departmentRoutes";
 import attendanceRoutes from "./attendanceRoutes";
+import leaveRoutes from "./leaveRoutes";
 
 export { 
   baseRoutes, 
@@ -15,5 +16,6 @@ export {
   authRoutes, 
   employeeRoutes, 
   departmentRoutes,
-  attendanceRoutes 
+  attendanceRoutes,
+  leaveRoutes 
 };
