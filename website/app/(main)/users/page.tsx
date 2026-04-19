@@ -241,7 +241,7 @@ export default function UsersPage() {
                         : "No session log"}
                     </td>
                     <td className="pl-6 pr-10 py-5 text-right">
-                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => {
                             setEditingUser(user);

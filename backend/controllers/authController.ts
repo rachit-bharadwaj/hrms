@@ -50,7 +50,7 @@ export const login = async (req: Request, res: Response) => {
         email: user.email, 
         roleId: user.roleId, 
         role: roleName,
-        // mustChangePassword: user.mustChangePassword 
+        mustChangePassword: user.mustChangePassword 
       },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN as any }
@@ -201,7 +201,7 @@ export const changePassword = async (req: any, res: Response) => {
 
     await db.update(users).set({ 
       passwordHash: hashPassword(newPassword), 
-      // mustChangePassword: false,
+      mustChangePassword: false,
       updatedAt: new Date() 
     }).where(eq(users.id, userId));
 
