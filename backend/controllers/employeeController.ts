@@ -9,15 +9,27 @@ export const getEmployees = async (req: Request, res: Response) => {
     const result = await db
       .select({
         id: employees.id,
+        userId: employees.userId,
         firstName: employees.firstName,
         lastName: employees.lastName,
         employeeCode: employees.employeeCode,
-        designation: employees.designation,
-        status: employees.status,
-        departmentName: departments.name,
+        dob: employees.dob,
+        gender: employees.gender,
+        phone: employees.phone,
         emailOfficial: employees.emailOfficial,
+        addressLine1: employees.addressLine1,
+        addressLine2: employees.addressLine2,
+        city: employees.city,
+        state: employees.state,
+        pincode: employees.pincode,
+        country: employees.country,
         photoUrl: employees.photoUrl,
+        designation: employees.designation,
+        departmentId: employees.departmentId,
+        departmentName: departments.name,
         joiningDate: employees.joiningDate,
+        employmentType: employees.employmentType,
+        status: employees.status,
       })
       .from(employees)
       .leftJoin(departments, eq(employees.departmentId, departments.id))

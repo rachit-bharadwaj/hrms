@@ -45,15 +45,46 @@ export default function EmployeeModal({
   useEffect(() => {
     if (isOpen) {
       if (initialData) {
+        fetchEmployeeDetails(initialData.id);
+      } else {
         setFormData({
-          ...initialData,
-          dob: initialData.dob ? new Date(initialData.dob).toISOString().split("T")[0] : "",
-          joiningDate: initialData.joiningDate ? new Date(initialData.joiningDate).toISOString().split("T")[0] : "",
+          userId: "",
+          firstName: "",
+          lastName: "",
+          employeeCode: "",
+          emailOfficial: "",
+          designation: "",
+          departmentId: "",
+          dob: "",
+          gender: "Male",
+          phone: "",
+          joiningDate: new Date().toISOString().split("T")[0],
+          employmentType: "Full-time",
+          status: "Active",
+          addressLine1: "",
+          city: "",
+          state: "",
+          pincode: "",
+          country: "India",
         });
       }
       fetchGroups();
     }
   }, [isOpen, initialData]);
+
+  const fetchEmployeeDetails = async (id: string) => {
+    try {
+      const res = await api.get(`/employees/${id}`);
+      const data = res.data.data;
+      setFormData({
+        ...data,
+        dob: data.dob ? new Date(data.dob).toISOString().split("T")[0] : "",
+        joiningDate: data.joiningDate ? new Date(data.joiningDate).toISOString().split("T")[0] : "",
+      });
+    } catch (error) {
+      console.error("Failed to fetch employee details:", error);
+    }
+  };
 
   const fetchGroups = async () => {
     try {

@@ -19,15 +19,27 @@ import EmployeeModal from "@/components/employees/EmployeeModal";
 
 interface Employee {
   id: string;
+  userId: string;
   firstName: string;
   lastName: string;
   employeeCode: string;
-  designation: string;
-  status: string;
-  departmentName: string;
+  dob: string;
+  gender: string;
+  phone: string;
   emailOfficial: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  state: string;
+  pincode: string;
+  country: string;
   photoUrl: string | null;
+  designation: string;
+  departmentId: string;
+  departmentName: string;
   joiningDate: string;
+  employmentType: string;
+  status: string;
 }
 
 function EmployeesList() {
