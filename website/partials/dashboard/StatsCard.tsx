@@ -12,7 +12,7 @@ export default function StatCard({
   return (
     <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col gap-4">
       <div className="flex justify-between items-start">
-        <h3 className="text-slate-500 text-sm font-medium">{title}</h3>
+        <p className="text-slate-500 text-lg">{title}</p>
         {trend && (
           <div
             className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold ${
@@ -28,10 +28,10 @@ export default function StatCard({
       </div>
 
       <div className="flex flex-col gap-1">
-        <div className="text-3xl font-bold text-slate-900 tracking-tight">
+        <div className="text-3xl font-bold font-bricolage-grotesk text-slate-900 tracking-tight">
           {value}
         </div>
-        <p className="text-slate-400 text-xs font-medium">{subtext}</p>
+        <p className="text-slate-500">{subtext}</p>
       </div>
 
       {progress && (
