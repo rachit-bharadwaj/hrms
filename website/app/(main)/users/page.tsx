@@ -4,11 +4,13 @@ import UserModal from "@/components/users/UserModal";
 import api from "@/lib/api";
 import {
   AlertCircle,
+  Circle,
   Edit2,
   Search,
   Shield,
   Trash2,
   UserPlus,
+  Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -100,80 +102,56 @@ export default function UsersPage() {
   );
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto">
+    <div className="flex flex-col gap-8 w-full pb-20">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 font-bricolage-grotesque">
-            User Management
-          </h1>
-          <p className="text-slate-500 text-sm font-medium">
-            Manage organization users, access levels, and account status.
-          </p>
+          <h1 className="text-3xl font-bold text-slate-900 font-bricolage-grotesque tracking-tight">User Management</h1>
+          <p className="text-slate-500 text-sm font-medium">Manage organization accounts, security levels, and login status.</p>
         </div>
-        <button
+        <button 
           onClick={() => {
             setEditingUser(null);
             setIsModalOpen(true);
           }}
-          className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-2xl text-sm font-bold transition-all shadow-xl shadow-blue-500/20 active:scale-95 whitespace-nowrap"
+          className="flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-6 py-3.5 rounded-2xl text-sm font-bold transition-all shadow-xl shadow-slate-900/10 active:scale-95 whitespace-nowrap"
         >
           <UserPlus size={18} />
-          <span>Add New User</span>
+          <span>Add New Account</span>
         </button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          {
-            label: "Total Users",
-            value: users.length,
-            color: "text-slate-900",
-          },
-          {
-            label: "Active Now",
-            value: users.filter((u) => u.isActive).length,
-            color: "text-emerald-500",
-          },
-          {
-            label: "Admin Roles",
-            value: users.filter((u) => getRoleName(u.roleId).includes("Admin"))
-              .length,
-            color: "text-blue-500",
-          },
-          {
-            label: "Inactive",
-            value: users.filter((u) => !u.isActive).length,
-            color: "text-red-500",
-          },
+          { label: "Accounts", value: users.length, color: "text-slate-900", icon: Users },
+          { label: "Active", value: users.filter(u => u.isActive).length, color: "text-emerald-500", icon: Circle },
+          { label: "Admins", value: users.filter(u => getRoleName(u.roleId).includes("Admin")).length, color: "text-blue-500", icon: Shield },
+          { label: "Restricted", value: users.filter(u => !u.isActive).length, color: "text-red-500", icon: AlertCircle }
         ].map((stat, i) => (
-          <div
-            key={i}
-            className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm"
-          >
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
-              {stat.label}
-            </p>
-            <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+          <div key={i} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between group hover:shadow-lg hover:shadow-blue-500/5 transition-all">
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
+              <p className={`text-3xl font-bold font-bricolage-grotesque ${stat.color}`}>{stat.value}</p>
+            </div>
+            <div className={`p-3 rounded-2xl bg-slate-50 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors`}>
+              <stat.icon size={20} />
+            </div>
           </div>
         ))}
       </div>
 
       {/* Table Section */}
-      <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
-        <div className="p-5 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
+      <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+        <div className="p-6 border-b border-slate-50 flex flex-col md:flex-row items-center justify-between bg-slate-50/20 gap-4">
           <div className="relative w-full max-w-md">
-            <Search
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-              size={18}
-            />
-            <input
-              type="text"
-              placeholder="Filter by email address..."
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <input 
+              type="text" 
+              placeholder="Search by email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all placeholder:text-slate-400"
+              className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all placeholder:text-slate-400 shadow-sm"
             />
           </div>
         </div>
@@ -181,19 +159,19 @@ export default function UsersPage() {
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="text-left text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-50">
-                <th className="pl-8 pr-6 py-5">User Details</th>
-                <th className="px-6 py-5">Role</th>
-                <th className="px-6 py-5">Status</th>
+              <tr className="text-left text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-50 bg-slate-50/10">
+                <th className="pl-10 pr-6 py-5">User Profile</th>
+                <th className="px-6 py-5">Assigned Role</th>
+                <th className="px-6 py-5">Access Status</th>
                 <th className="px-6 py-5">Last Activity</th>
-                <th className="pl-6 pr-8 py-5 text-right">Actions</th>
+                <th className="pl-6 pr-10 py-5 text-right">Settings</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i} className="animate-pulse">
-                    <td className="pl-8 pr-6 py-5">
+                    <td className="pl-10 pr-6 py-5">
                       <div className="h-5 w-40 bg-slate-100 rounded-lg" />
                     </td>
                     <td className="px-6 py-5">
@@ -205,18 +183,18 @@ export default function UsersPage() {
                     <td className="px-6 py-5">
                       <div className="h-5 w-32 bg-slate-100 rounded-lg" />
                     </td>
-                    <td className="pl-6 pr-8 py-5 text-right">
+                    <td className="pl-6 pr-10 py-5 text-right">
                       <div className="h-8 w-16 bg-slate-100 rounded-lg ml-auto" />
                     </td>
                   </tr>
                 ))
               ) : filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-8 py-20 text-center">
+                  <td colSpan={5} className="px-10 py-24 text-center">
                     <div className="flex flex-col items-center gap-3 opacity-40">
                       <Search size={48} className="text-slate-300" />
-                      <p className="text-sm font-bold text-slate-400">
-                        No users found in records
+                      <p className="text-sm font-bold text-slate-400 font-bricolage-grotesque">
+                        No user records available
                       </p>
                     </div>
                   </td>
@@ -227,7 +205,7 @@ export default function UsersPage() {
                     key={user.id}
                     className="group hover:bg-slate-50/50 transition-colors"
                   >
-                    <td className="pl-8 pr-6 py-5">
+                    <td className="pl-10 pr-6 py-5">
                       <div className="flex flex-col">
                         <span className="text-sm font-bold text-slate-900 mb-0.5">
                           {user.email}
@@ -260,10 +238,10 @@ export default function UsersPage() {
                     <td className="px-6 py-5 text-xs font-medium text-slate-500">
                       {user.lastLoginAt
                         ? formatDate(user.lastLoginAt)
-                        : "No log found"}
+                        : "No session log"}
                     </td>
-                    <td className="pl-6 pr-8 py-5 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="pl-6 pr-10 py-5 text-right">
+                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => {
                             setEditingUser(user);
