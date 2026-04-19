@@ -13,7 +13,8 @@ import {
   User,
   Users,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import EmployeeModal from "@/components/employees/EmployeeModal";
 
 interface Employee {
@@ -29,10 +30,13 @@ interface Employee {
   joiningDate: string;
 }
 
-export default function EmployeesPage() {
+function EmployeesList() {
+  const searchParams = useSearchParams();
+  const search = searchParams.get("search");
+  
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(search || "");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<any>(null);
 
@@ -82,7 +86,8 @@ export default function EmployeesPage() {
       `${emp.firstName} ${emp.lastName}`
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      emp.employeeCode.toLowerCase().includes(searchTerm.toLowerCase()),
+      emp.employeeCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      emp.departmentName?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const getStatusColor = (status: string) => {
@@ -254,5 +259,13 @@ export default function EmployeesPage() {
         />
       )}
     </div>
+  );
+}
+
+export default function EmployeesPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-slate-400">Loading Directory...</div>}>
+      <EmployeesList />
+    </Suspense>
   );
 }

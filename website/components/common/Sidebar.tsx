@@ -4,6 +4,7 @@ import { Logo } from "@/partials/common";
 import {
   BarChart3,
   Briefcase,
+  Building2,
   HelpCircle,
   LockKeyhole,
   Menu,
@@ -87,6 +88,7 @@ export default function Sidebar() {
   const navItems = [
     { icon: BarChart3, label: "Dashboard", href: "/" },
     { icon: Briefcase, label: "Employees", href: "/employees" },
+    { icon: Building2, label: "Departments", href: "/departments" },
     { icon: User, label: "Users", href: "/users" },
     { icon: Shield, label: "Roles", href: "/roles" },
     { icon: LockKeyhole, label: "Permissions", href: "/permissions" },
