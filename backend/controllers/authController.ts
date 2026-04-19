@@ -102,7 +102,7 @@ export const getMe = async (req: any, res: Response) => {
 };
 
 export const updateProfile = async (req: any, res: Response) => {
-  const { name, email } = req.body;
+  const { name, email, dob, phone, address } = req.body;
   const userId = req.user.id;
 
   try {
@@ -114,64 +114,17 @@ export const updateProfile = async (req: any, res: Response) => {
     }
 
     // Update employee table
+    const updatePayload: any = { updatedAt: new Date() };
     if (name) {
       const parts = name.trim().split(" ");
-      const firstName = parts[0];
-      const lastName = parts.slice(1).join(" ") || "";
-
-      // Check if employee record exists
-      const existingEmployee = await db
-        .select()
-        .from(employees)
-        .where(eq(employees.userId, userId))
-        .limit(1);
-
-      if (existingEmployee.length > 0) {
-        // Update existing
-        await db
-          .update(employees)
-          .set({ firstName, lastName, updatedAt: new Date() })
-          .where(eq(employees.userId, userId));
-      } else {
-        // Create new employee record
-        // Ensure at least one department exists
-        let deptId: string;
-        const depts = await db.select().from(departments).limit(1);
-        if (depts.length > 0) {
-          deptId = depts[0].id;
-        } else {
-          const [newDept] = await db
-            .insert(departments)
-            .values({
-              name: "General",
-              code: "GEN",
-            })
-            .returning();
-          deptId = newDept.id;
-        }
-
-        await db.insert(employees).values({
-          userId,
-          firstName,
-          lastName,
-          emailOfficial: email || "user@company.com",
-          employeeCode: `EMP-${userId.slice(0, 8).toUpperCase()}`,
-          dob: "1990-01-01",
-          gender: "Other",
-          phone: "0000000000",
-          addressLine1: "N/A",
-          city: "N/A",
-          state: "N/A",
-          pincode: "000000",
-          country: "N/A",
-          designation: "Employee",
-          departmentId: deptId,
-          joiningDate: new Date().toISOString().split("T")[0],
-          employmentType: "Full-time",
-          status: "Active",
-        });
-      }
+      updatePayload.firstName = parts[0];
+      updatePayload.lastName = parts.slice(1).join(" ") || "";
     }
+    if (dob) updatePayload.dob = dob;
+    if (phone) updatePayload.phone = phone;
+    if (address) updatePayload.addressLine1 = address;
+
+    await db.update(employees).set(updatePayload).where(eq(employees.userId, userId));
 
     res.status(200).json({ status: "success", message: "Profile updated successfully" });
   } catch (error: any) {

@@ -24,6 +24,9 @@ export default function AccountPage() {
   const [profileForm, setProfileForm] = useState({
     name: "",
     email: "",
+    dob: "",
+    phone: "",
+    address: "",
   });
 
   // Password Form
@@ -52,10 +55,14 @@ export default function AccountPage() {
       setIsLoading(true);
       const response = await api.get("/auth/me");
       if (response.data.status === "success") {
-        setUserData(response.data.user);
+        const u = response.data.user;
+        setUserData(u);
         setProfileForm({
-          name: response.data.user.name || "",
-          email: response.data.user.email || "",
+          name: u.name || "",
+          email: u.email || "",
+          dob: u.dob || "",
+          phone: u.phone || "",
+          address: u.address || "",
         });
       }
     } catch (error) {
@@ -257,7 +264,45 @@ export default function AccountPage() {
                       setProfileForm({ ...profileForm, email: e.target.value })
                     }
                     className="w-full px-5 py-4 bg-slate-50/50 border border-slate-100 rounded-3xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all font-mono"
-                    placeholder="rachit@company.com"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">
+                    Date of Birth
+                  </label>
+                  <input
+                    type="date"
+                    value={profileForm.dob}
+                    onChange={(e) =>
+                      setProfileForm({ ...profileForm, dob: e.target.value })
+                    }
+                    className="w-full px-5 py-4 bg-slate-50/50 border border-slate-100 rounded-3xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">
+                    Phone Number
+                  </label>
+                  <input
+                    type="text"
+                    value={profileForm.phone}
+                    onChange={(e) =>
+                      setProfileForm({ ...profileForm, phone: e.target.value })
+                    }
+                    className="w-full px-5 py-4 bg-slate-50/50 border border-slate-100 rounded-3xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all"
+                  />
+                </div>
+                <div className="md:col-span-2 space-y-2">
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">
+                    Current Address
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={profileForm.address}
+                    onChange={(e) =>
+                      setProfileForm({ ...profileForm, address: e.target.value })
+                    }
+                    className="w-full px-5 py-4 bg-slate-50/50 border border-slate-100 rounded-3xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all resize-none"
                   />
                 </div>
               </div>

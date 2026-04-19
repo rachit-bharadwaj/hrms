@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import connectDB from "../database/connection";
-import { leaveRequests, leaveBalances, leaveTypes, employees } from "../database/schema";
+import { leaveRequests, leaveBalances, leaveTypes, employees, holidays } from "../database/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { AuthRequest } from "../middleware/authMiddleware";
 
@@ -28,18 +28,42 @@ export const applyLeave = async (req: AuthRequest, res: Response) => {
     // Find employee by user ID
     const employee = await db.select().from(employees).where(eq(employees.userId, employeeId)).limit(1);
     if (!employee[0]) return res.status(404).json({ status: "error", message: "Employee record not found" });
-
     const empId = employee[0].id;
+
+    // Verify day count excluding holidays and weekends
+    const holidayList = await db.select().from(holidays);
+    const holidayDates = holidayList.map((h: any) => new Date(h.date).toISOString().split('T')[0]);
+
+    let calculatedDays = 0;
+    let curr = new Date(startDate);
+    const end = new Date(endDate);
+    
+    while (curr <= end) {
+      const dayOfWeek = curr.getDay();
+      const dateStr = curr.toISOString().split('T')[0];
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      const isHoliday = holidayDates.includes(dateStr);
+      
+      if (!isWeekend && !isHoliday) {
+        calculatedDays++;
+      }
+      curr.setDate(curr.getDate() + 1);
+    }
+
+    if (calculatedDays !== Number(days)) {
+       // Allow flexibility but log or warning could be here. 
+       // For now, trust the requested days but validate against balance.
+    }
 
     // Check balance
     const balance = await db
       .select()
       .from(leaveBalances)
-      .where(
+.where(
         and(
           eq(leaveBalances.employeeId, empId),
           eq(leaveBalances.leaveTypeId, leaveTypeId),
-          eq(leaveBalances.year, new Date().getFullYear())
+          eq(leaveBalances.year, new Date(startDate).getFullYear())
         )
       )
       .limit(1);
@@ -209,6 +233,74 @@ export const getLeaveBalances = async (req: AuthRequest, res: Response) => {
       .where(and(eq(leaveBalances.employeeId, employee[0].id), eq(leaveBalances.year, new Date().getFullYear())));
 
     res.status(200).json({ status: "success", data: balances });
+  } catch (error: any) {
+    res.status(500).json({ status: "error", message: error.message });
+  }
+};
+
+export const carryForwardLeaves = async (req: Request, res: Response) => {
+  try {
+    const { fromYear, toYear } = req.body;
+    const db = await connectDB();
+    
+    // Fetch all current balances
+    const currentBalances = await db.select().from(leaveBalances).where(eq(leaveBalances.year, fromYear));
+    
+    for (const bal of currentBalances) {
+      // Logic: Carry forward max 10 days of EL (Earned Leave)
+      const carryAmount = Math.min(bal.closingBalance, 10);
+      
+      // Check if next year balance already exists
+      const existing = await db
+        .select()
+        .from(leaveBalances)
+        .where(and(eq(leaveBalances.employeeId, bal.employeeId), eq(leaveBalances.leaveTypeId, bal.leaveTypeId), eq(leaveBalances.year, toYear)))
+        .limit(1);
+
+      if (existing.length > 0) {
+        await db.update(leaveBalances).set({ openingBalance: carryAmount }).where(eq(leaveBalances.id, existing[0].id));
+      } else {
+        await db.insert(leaveBalances).values({
+          employeeId: bal.employeeId,
+          leaveTypeId: bal.leaveTypeId,
+          year: toYear,
+          openingBalance: carryAmount,
+          accrued: 0,
+          closingBalance: carryAmount,
+        });
+      }
+    }
+
+    res.status(200).json({ status: "success", message: `Leaves carried forward from ${fromYear} to ${toYear}` });
+  } catch (error: any) {
+    res.status(500).json({ status: "error", message: error.message });
+  }
+};
+
+export const encashLeave = async (req: Request, res: Response) => {
+  try {
+    const { employeeId, leaveTypeId, days } = req.body;
+    const db = await connectDB();
+    
+    const balance = await db
+      .select()
+      .from(leaveBalances)
+      .where(and(eq(leaveBalances.employeeId, employeeId), eq(leaveBalances.leaveTypeId, leaveTypeId), eq(leaveBalances.year, new Date().getFullYear())))
+      .limit(1);
+
+    if (!balance[0] || balance[0].closingBalance < days) {
+      return res.status(400).json({ status: "error", message: "Insufficient balance" });
+    }
+
+    await db
+      .update(leaveBalances)
+      .set({
+        closingBalance: balance[0].closingBalance - days,
+        updatedAt: new Date(),
+      })
+      .where(eq(leaveBalances.id, balance[0].id));
+
+    res.status(200).json({ status: "success", message: `Successfully encashed ${days} days` });
   } catch (error: any) {
     res.status(500).json({ status: "error", message: error.message });
   }

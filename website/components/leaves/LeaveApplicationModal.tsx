@@ -21,6 +21,7 @@ export default function LeaveApplicationModal({
   onSubmit: () => void;
 }) {
   const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([]);
+  const [holidays, setHolidays] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     leaveTypeId: "",
     startDate: "",
@@ -31,8 +32,20 @@ export default function LeaveApplicationModal({
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (isOpen) fetchLeaveTypes();
+    if (isOpen) {
+      fetchLeaveTypes();
+      fetchHolidays();
+    }
   }, [isOpen]);
+
+  const fetchHolidays = async () => {
+    try {
+      const res = await api.get("/holidays");
+      setHolidays(res.data.data);
+    } catch (error) {
+      console.error("Failed to fetch holidays:", error);
+    }
+  };
 
   const fetchLeaveTypes = async () => {
     try {
@@ -47,11 +60,25 @@ export default function LeaveApplicationModal({
     if (formData.startDate && formData.endDate) {
       const start = new Date(formData.startDate);
       const end = new Date(formData.endDate);
-      const diffTime = Math.abs(end.getTime() - start.getTime());
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-      setFormData(prev => ({ ...prev, days: diffDays > 0 ? diffDays : 0 }));
+      const holidayDates = holidays.map(h => new Date(h.date).toISOString().split('T')[0]);
+      
+      let count = 0;
+      let curr = new Date(start);
+      while (curr <= end) {
+        const dayOfWeek = curr.getDay();
+        const dateStr = curr.toISOString().split('T')[0];
+        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+        const isHoliday = holidayDates.includes(dateStr);
+        
+        if (!isWeekend && !isHoliday) {
+          count++;
+        }
+        curr.setDate(curr.getDate() + 1);
+      }
+      
+      setFormData(prev => ({ ...prev, days: count }));
     }
-  }, [formData.startDate, formData.endDate]);
+  }, [formData.startDate, formData.endDate, holidays]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

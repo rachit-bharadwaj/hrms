@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import connectDB from "../database/connection";
-import { attendanceRecords, employees, departments } from "../database/schema";
+import { attendanceRecords, employees, departments, holidays } from "../database/schema";
 import { eq, and, between, sql, desc, inArray } from "drizzle-orm";
 
 export const markAttendance = async (req: Request, res: Response) => {
@@ -108,12 +108,22 @@ export const getAttendanceByDate = async (req: Request, res: Response) => {
       .from(attendanceRecords)
       .where(eq(attendanceRecords.date, date));
 
+    const holiday = await db
+      .select()
+      .from(holidays)
+      .where(eq(holidays.date, date))
+      .limit(1);
+
     const data = allEmployees.map((emp: any) => {
       const record = attendance.find((a: any) => a.employeeId === emp.id);
+      let status = record ? record.status : "Not Marked";
+      if (!record && holiday[0]) status = `Holiday: ${holiday[0].name}`;
+      
       return {
         ...emp,
-        attendanceStatus: record ? record.status : "Not Marked",
+        attendanceStatus: status,
         attendanceId: record ? record.id : null,
+        isHoliday: !!holiday[0]
       };
     });
 
