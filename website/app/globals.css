@@ -1,10 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-bricolage: var(--font-bricolage-grotesque);
+  --font-bricolage: var(--font-bricolage-grotesque), ui-sans-serif, system-ui, sans-serif;
+  --font-bricolage-grotesque: var(--font-bricolage-grotesque), ui-sans-serif, system-ui, sans-serif;
   --color-primary: #0092ff;
-}
-
-.font-bricolage-grotesque {
-  font-family: var(--font-bricolage-grotesque), sans-serif;
 }

@@ -13,7 +13,7 @@ export default function CandidateSource() {
 
   return (
     <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm flex flex-col gap-6">
-      <h3 className="font-bricolage-grotesk text-slate-500 tracking-tight text-xl">
+      <h3 className="font-bricolage-grotesque text-slate-500 tracking-tight text-xl">
         Candidate Source
       </h3>
 

@@ -28,7 +28,7 @@ export default function StatCard({
       </div>
 
       <div className="flex flex-col gap-1">
-        <div className="text-3xl font-bold font-bricolage-grotesk text-slate-900 tracking-tight">
+        <div className="text-3xl font-bold font-bricolage-grotesque text-slate-900 tracking-tight">
           {value}
         </div>
         <p className="text-slate-500">{subtext}</p>

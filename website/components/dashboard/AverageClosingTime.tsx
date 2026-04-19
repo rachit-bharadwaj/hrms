@@ -42,7 +42,7 @@ const data = [
 export default function AverageClosingTime() {
   return (
     <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm flex flex-col gap-6">
-      <p className="text-slate-500 tracking-tight text-xl font-bricolage-grotesk">
+      <p className="text-slate-500 tracking-tight text-xl font-bricolage-grotesque">
         Average vacancy closing time
       </p>
 

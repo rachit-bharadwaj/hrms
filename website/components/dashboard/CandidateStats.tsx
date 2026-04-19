@@ -34,7 +34,7 @@ export default function CandidateStats() {
   return (
     <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm flex flex-col gap-6">
       <div className="flex justify-between items-center">
-        <h3 className="font-bricolage-grotesk text-slate-500 tracking-tight text-xl">
+        <h3 className="font-bricolage-grotesque text-slate-500 tracking-tight text-xl">
           Candidate statistics
         </h3>
         <div className="flex items-center gap-6 text-sm">
