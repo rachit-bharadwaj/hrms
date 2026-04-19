@@ -9,7 +9,7 @@ export default function MainLayout({
   return (
     <div className="flex">
       <Sidebar />
-      <main className="flex-1 pl-[72px]">
+      <main className="flex-1 pl-[var(--sidebar-width,72px)] transition-all duration-300 ease-in-out">
         {children}
       </main>
     </div>
