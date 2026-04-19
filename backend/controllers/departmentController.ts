@@ -59,10 +59,11 @@ export const createDepartment = async (req: Request, res: Response) => {
 export const updateDepartment = async (req: Request, res: Response) => {
   try {
     const { id } = req.params as { id: string };
+    const { name, code, description } = req.body;
     const db = await connectDB();
     const updatedDept = await db
       .update(departments)
-      .set({ ...req.body, updatedAt: new Date() })
+      .set({ name, code, description, updatedAt: new Date() })
       .where(eq(departments.id, id))
       .returning();
 

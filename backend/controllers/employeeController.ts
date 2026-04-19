@@ -74,10 +74,18 @@ export const createEmployee = async (req: Request, res: Response) => {
 export const updateEmployee = async (req: Request, res: Response) => {
   const { id } = req.params as { id: string };
   try {
+    const { 
+      id: _id, 
+      createdAt: _createdAt, 
+      updatedAt: _updatedAt, 
+      departmentName: _departmentName,
+      ...updateData 
+    } = req.body;
+    
     const db = await connectDB();
     const updatedEmployee = await db
       .update(employees)
-      .set({ ...req.body, updatedAt: new Date() })
+      .set({ ...updateData, updatedAt: new Date() })
       .where(eq(employees.id, id))
       .returning();
 
