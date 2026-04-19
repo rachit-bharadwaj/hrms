@@ -4,6 +4,9 @@ import { salaryStructures, payrollRuns, payslips, employees, users, departments,
 import { eq, and, desc, sql, between } from "drizzle-orm";
 import { AuthRequest } from "../middleware/authMiddleware";
 import { calculatePF, calculateESI, calculateTDS } from "../utils/calculations";
+import { generatePayslipPDF } from "../utils/pdfGenerator";
+import path from "path";
+import fs from "fs";
 
 export const getSalaryStructure = async (req: Request, res: Response) => {
   try {
@@ -121,6 +124,30 @@ export const processPayroll = async (req: AuthRequest, res: Response) => {
 
       const payslipNum = `PAY-${year}${month.toString().padStart(2, '0')}-${emp.employeeCode}`;
 
+      // PDF Generation
+      const pdfDir = path.join(process.cwd(), 'public', 'payslips');
+      if (!fs.existsSync(pdfDir)) fs.mkdirSync(pdfDir, { recursive: true });
+      const fileName = `${payslipNum}.pdf`;
+      const filePath = path.join(pdfDir, fileName);
+
+      await generatePayslipPDF({
+        employeeName: `${emp.firstName} ${emp.lastName}`,
+        employeeCode: emp.employeeCode,
+        department: "General",
+        month: new Date(year, month - 1).toLocaleString('default', { month: 'long' }),
+        year,
+        payslipNumber: payslipNum,
+        basic: emp.basic,
+        hra: emp.hra,
+        allowances: emp.otherAllowances,
+        gross: grossEarnings,
+        pf: pfEmployee,
+        esi: esiEmployee,
+        tds: tds,
+        lwp: deductionForAbsence,
+        netPay: netPay,
+      }, filePath);
+
       const payslip = await db.insert(payslips).values({
         payrollRunId,
         employeeId: emp.employeeId,
@@ -133,7 +160,7 @@ export const processPayroll = async (req: AuthRequest, res: Response) => {
         otherDeductions: deductionForAbsence,
         netPay,
         payslipNumber: payslipNum,
-        payslipPdfUrl: `/payroll/payslip/view/${payslipNum}`,
+        payslipPdfUrl: `/payslips/${fileName}`,
       }).returning();
 
       generatedPayslips.push(payslip[0]);
@@ -160,6 +187,7 @@ export const getMyPayslips = async (req: AuthRequest, res: Response) => {
         month: payrollRuns.month,
         year: payrollRuns.year,
         createdAt: payslips.createdAt,
+        payslipPdfUrl: payslips.payslipPdfUrl,
       })
       .from(payslips)
       .innerJoin(payrollRuns, eq(payslips.payrollRunId, payrollRuns.id))

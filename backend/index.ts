@@ -51,6 +51,9 @@ app.use(
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Serve static files (like payslip PDFs)
+app.use(express.static("public"));
+
 // API routes
 app.use("/", baseRoutes);
 app.use("/api/auth", authRoutes); // Public Login
