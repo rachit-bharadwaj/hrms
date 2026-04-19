@@ -25,6 +25,7 @@ import {
   dashboardRoutes
 } from "./routes";
 import { authenticate, authorize } from "./middleware/authMiddleware";
+import setupSwagger from "./utils/swagger";
 
 dotenv.config();
 
@@ -58,6 +59,9 @@ app.use(express.static("public"));
 // API routes
 app.use("/", baseRoutes);
 app.use("/api/auth", authRoutes); // Public Login
+
+// Setup Swagger
+setupSwagger(app);
 
 // Protected Routes
 app.use("/api", authenticate); // All /api/* routes now require valid JWT
