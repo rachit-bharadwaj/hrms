@@ -2,6 +2,7 @@
 
 import { Logo } from "@/partials/common";
 import {
+  Banknote,
   BarChart3,
   Briefcase,
   Building2,
@@ -95,6 +96,7 @@ export default function Sidebar() {
     { icon: CheckCircle2, label: "Attendance", href: "/attendance" },
     { icon: Calendar, label: "Leaves", href: "/leaves" },
     { icon: ClipboardCheck, label: "Approvals", href: "/leaves/requests" },
+    { icon: Banknote, label: "Payroll", href: "/payroll" },
     { icon: User, label: "Users", href: "/users" },
     { icon: Shield, label: "Roles", href: "/roles" },
     { icon: LockKeyhole, label: "Permissions", href: "/permissions" },

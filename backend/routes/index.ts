@@ -7,6 +7,7 @@ import employeeRoutes from "./employeeRoutes";
 import departmentRoutes from "./departmentRoutes";
 import attendanceRoutes from "./attendanceRoutes";
 import leaveRoutes from "./leaveRoutes";
+import payrollRoutes from "./payrollRoutes";
 
 export { 
   baseRoutes, 
@@ -17,5 +18,6 @@ export {
   employeeRoutes, 
   departmentRoutes,
   attendanceRoutes,
-  leaveRoutes 
+  leaveRoutes,
+  payrollRoutes 
 };
