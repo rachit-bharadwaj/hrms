@@ -3,6 +3,7 @@ import connectDB from "../database/connection";
 import { leaveRequests, leaveBalances, leaveTypes, employees, holidays } from "../database/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { AuthRequest } from "../middleware/authMiddleware";
+import { calculateWorkingDays } from "../utils/calculations";
 
 export const getLeaveTypes = async (req: Request, res: Response) => {
   try {
@@ -17,47 +18,27 @@ export const getLeaveTypes = async (req: Request, res: Response) => {
 export const applyLeave = async (req: AuthRequest, res: Response) => {
   try {
     const { leaveTypeId, startDate, endDate, days, reason } = req.body;
-    const employeeId = req.user?.id; // This assumes req.user.id is the employee ID. 
-    // Wait! In this system, user.id might be different from employee.id.
-    // I should find the employee linked to this user.
+    const employeeId = req.user?.id; 
     
     if (!employeeId) return res.status(401).json({ status: "error", message: "User not authenticated" });
 
     const db = await connectDB();
     
-    // Find employee by user ID
     const employee = await db.select().from(employees).where(eq(employees.userId, employeeId)).limit(1);
     if (!employee[0]) return res.status(404).json({ status: "error", message: "Employee record not found" });
     const empId = employee[0].id;
 
-    // Verify day count excluding holidays and weekends
     const holidayList = await db.select().from(holidays);
     const holidayDates = holidayList.map((h: any) => new Date(h.date).toISOString().split('T')[0]);
 
-    let calculatedDays = 0;
-    let curr = new Date(startDate);
-    const end = new Date(endDate);
-    
-    while (curr <= end) {
-      const dayOfWeek = curr.getDay();
-      const dateStr = curr.toISOString().split('T')[0];
-      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-      const isHoliday = holidayDates.includes(dateStr);
-      
-      if (!isWeekend && !isHoliday) {
-        calculatedDays++;
-      }
-      curr.setDate(curr.getDate() + 1);
-    }
+    const calculatedDays = calculateWorkingDays(startDate, endDate, holidayDates);
 
     if (calculatedDays <= 0) {
       return res.status(400).json({ status: "error", message: "No valid working days in the selected range" });
     }
 
-    // Force server-calculated days
     const finalDays = calculatedDays;
 
-    // Check balance
     const balance = await db
       .select()
       .from(leaveBalances)
@@ -125,10 +106,13 @@ export const getMyLeaveRequests = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const getPendingLeaveRequests = async (req: Request, res: Response) => {
+export const getPendingLeaveRequests = async (req: AuthRequest, res: Response) => {
   try {
     const db = await connectDB();
-    const requests = await db
+    const userRole = req.user?.role;
+    const userId = req.user?.id;
+
+    let query = db
       .select({
         id: leaveRequests.id,
         startDate: leaveRequests.startDate,
@@ -142,10 +126,20 @@ export const getPendingLeaveRequests = async (req: Request, res: Response) => {
       })
       .from(leaveRequests)
       .innerJoin(employees, eq(leaveRequests.employeeId, employees.id))
-      .innerJoin(leaveTypes, eq(leaveRequests.leaveTypeId, leaveTypes.id))
-      .where(eq(leaveRequests.status, "PENDING"))
-      .orderBy(desc(leaveRequests.appliedAt));
+      .innerJoin(leaveTypes, eq(leaveRequests.leaveTypeId, leaveTypes.id));
 
+    if (userRole === "Manager") {
+      const manager = await db.select().from(employees).where(eq(employees.userId, userId as string)).limit(1);
+      if (manager[0]) {
+        query.where(and(eq(leaveRequests.status, "PENDING"), eq(employees.managerEmployeeId, manager[0].id)));
+      } else {
+        query.where(sql`1=0`);
+      }
+    } else {
+      query.where(eq(leaveRequests.status, "PENDING"));
+    }
+
+    const requests = await query.orderBy(desc(leaveRequests.appliedAt));
     res.status(200).json({ status: "success", data: requests });
   } catch (error: any) {
     res.status(500).json({ status: "error", message: error.message });
@@ -161,7 +155,6 @@ export const updateLeaveStatus = async (req: AuthRequest, res: Response) => {
 
     const approver = await db.select().from(employees).where(eq(employees.userId, userId as string)).limit(1);
     
-    // Get original request
     const request = await db.select().from(leaveRequests).where(eq(leaveRequests.id, id)).limit(1);
     if (!request[0]) return res.status(404).json({ status: "error", message: "Request not found" });
 
@@ -170,7 +163,6 @@ export const updateLeaveStatus = async (req: AuthRequest, res: Response) => {
     }
 
     if (status === "APPROVED") {
-      // Deduct from balance
       const balance = await db
         .select()
         .from(leaveBalances)
@@ -257,13 +249,9 @@ export const carryForwardLeaves = async (req: Request, res: Response) => {
     for (const record of currentBalances) {
       const bal = record.bal;
       const type = record.type;
-      
-      // Logic: Carry forward based on leave type config
       const carryAmount = Math.min(bal.closingBalance, type.maxCarryForward || 0);
-      
       if (carryAmount <= 0) continue;
       
-      // Check if next year balance already exists
       const existing = await db
         .select()
         .from(leaveBalances)
@@ -306,10 +294,7 @@ export const encashLeave = async (req: Request, res: Response) => {
       .limit(1);
 
     if (!balance[0]) return res.status(404).json({ status: "error", message: "Balance not found" });
-    
-    if (!balance[0].type.encashable) {
-      return res.status(400).json({ status: "error", message: "This leave type is not encashable" });
-    }
+    if (!balance[0].type.encashable) return res.status(400).json({ status: "error", message: "This leave type is not encashable" });
 
     if (balance[0].bal.closingBalance < days) {
       return res.status(400).json({ status: "error", message: "Insufficient balance" });

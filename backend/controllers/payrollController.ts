@@ -3,6 +3,7 @@ import connectDB from "../database/connection";
 import { salaryStructures, payrollRuns, payslips, employees, users, departments, attendanceRecords } from "../database/schema";
 import { eq, and, desc, sql, between } from "drizzle-orm";
 import { AuthRequest } from "../middleware/authMiddleware";
+import { calculatePF, calculateESI, calculateTDS } from "../utils/calculations";
 
 export const getSalaryStructure = async (req: Request, res: Response) => {
   try {
@@ -48,7 +49,6 @@ export const processPayroll = async (req: AuthRequest, res: Response) => {
     const processedByUserId = req.user?.id;
     const db = await connectDB();
 
-    // 1. Create a Payroll Run
     const newRun = await db.insert(payrollRuns).values({
       month,
       year,
@@ -59,7 +59,6 @@ export const processPayroll = async (req: AuthRequest, res: Response) => {
 
     const payrollRunId = newRun[0].id;
 
-    // 2. Fetch all employees with salary structures
     const activeEmployees = await db
       .select({
         employeeId: employees.id,
@@ -80,11 +79,9 @@ export const processPayroll = async (req: AuthRequest, res: Response) => {
 
     const generatedPayslips = [];
 
-    // 3. Process each employee
     for (const emp of activeEmployees) {
       const grossEarnings = emp.basic + emp.hra + emp.otherAllowances + (emp.otherEarnings || 0);
       
-      // Calculate LWP (Leave Without Pay) pro-rata
       const totalDaysInMonth = new Date(year, month, 0).getDate();
       const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
       const endDate = `${year}-${month.toString().padStart(2, '0')}-${totalDaysInMonth}`;
@@ -107,18 +104,19 @@ export const processPayroll = async (req: AuthRequest, res: Response) => {
       let pfEmployee = 0;
       let pfEmployer = 0;
       if (emp.pfApplicable) {
-        pfEmployee = Math.round(emp.basic * 0.12);
-        pfEmployer = Math.round(emp.basic * 0.12);
+        pfEmployee = calculatePF(emp.basic);
+        pfEmployer = calculatePF(emp.basic);
       }
 
       let esiEmployee = 0;
       let esiEmployer = 0;
-      if (emp.esiApplicable && grossEarnings <= 21000) {
-        esiEmployee = Math.round(grossEarnings * 0.0075);
-        esiEmployer = Math.round(grossEarnings * 0.0325);
+      if (emp.esiApplicable) {
+        const esi = calculateESI(grossEarnings);
+        esiEmployee = esi.employee;
+        esiEmployer = esi.employer;
       }
 
-      const tds = Math.round((grossEarnings * (emp.tdsRatePercent || 0)) / 100);
+      const tds = calculateTDS(grossEarnings, emp.tdsRatePercent || 0);
       const netPay = grossEarnings - pfEmployee - esiEmployee - tds - deductionForAbsence;
 
       const payslipNum = `PAY-${year}${month.toString().padStart(2, '0')}-${emp.employeeCode}`;
@@ -135,6 +133,7 @@ export const processPayroll = async (req: AuthRequest, res: Response) => {
         otherDeductions: deductionForAbsence,
         netPay,
         payslipNumber: payslipNum,
+        payslipPdfUrl: `/payroll/payslip/view/${payslipNum}`,
       }).returning();
 
       generatedPayslips.push(payslip[0]);
