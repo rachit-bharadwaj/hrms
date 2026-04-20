@@ -83,8 +83,8 @@ async function seed() {
     const allRoles = await db.select().from(roles);
     const allPerms = await db.select().from(permissions);
 
-    const getRoleId = (name: string) => allRoles.find(r => r.name === name)?.id;
-    const getPermId = (code: string) => allPerms.find(p => p.code === code)?.id;
+    const getRoleId = (name: string) => allRoles.find((r: any) => r.name === name)?.id;
+    const getPermId = (code: string) => allPerms.find((p: any) => p.code === code)?.id;
 
     // HR Manager permissions
     const hrManagerId = getRoleId("HR Manager");
