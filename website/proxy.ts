@@ -6,7 +6,7 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Define public paths that don't require authentication
-  const isPublicPath = pathname === "/login";
+  const isPublicPath = ["/login", "/forgot-password", "/reset-password"].includes(pathname);
 
   // 1. If the user is logged in and trying to access the login page, 
   // redirect them to the home page (dashboard).

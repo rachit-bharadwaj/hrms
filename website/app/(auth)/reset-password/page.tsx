@@ -9,11 +9,14 @@ import {
   Lock,
   ShieldCheck,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, Suspense } from "react";
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
+
   const [form, setForm] = useState({
     currentPassword: "",
     newPassword: "",
@@ -28,7 +31,7 @@ export default function ResetPasswordPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (form.newPassword !== form.confirmPassword) {
-      setStatus({ type: "error", message: "New passwords do not match" });
+      setStatus({ type: "error", message: "Passwords do not match" });
       return;
     }
 
@@ -36,18 +39,28 @@ export default function ResetPasswordPage() {
     setStatus(null);
 
     try {
-      const res = await api.post("/auth/change-password", {
-        currentPassword: form.currentPassword,
-        newPassword: form.newPassword,
-      });
+      let res;
+      if (token) {
+        // Reset from email link
+        res = await api.post("/auth/reset-password", {
+          token,
+          newPassword: form.newPassword,
+        });
+      } else {
+        // Must change password flow
+        res = await api.post("/auth/change-password", {
+          currentPassword: form.currentPassword,
+          newPassword: form.newPassword,
+        });
+      }
 
       if (res.data.status === "success") {
         setStatus({
           type: "success",
-          message: "Password updated! Redirecting to dashboard...",
+          message: "Password updated successfully! Redirecting to login...",
         });
         setTimeout(() => {
-          router.push("/");
+          router.push("/login");
         }, 2000);
       }
     } catch (error: any) {
@@ -73,41 +86,44 @@ export default function ResetPasswordPage() {
         </div>
 
         <div className="bg-white/80 backdrop-blur-xl p-8 md:p-10 rounded-[40px] border border-white shadow-[0_20px_50px_rgba(0,0,0,0.05)] flex flex-col gap-8">
-          <div className="flex flex-col gap-2 text-center">
+            <div className="flex flex-col gap-2 text-center">
             <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center text-white mx-auto mb-4 shadow-xl shadow-blue-500/20">
               <ShieldCheck size={32} />
             </div>
             <h1 className="text-2xl font-bold text-slate-900 font-bricolage-grotesque">
-              Secure Your Account
+              {token ? "Set New Password" : "Secure Your Account"}
             </h1>
             <p className="text-slate-500 text-sm font-medium px-4">
-              Your administrator requires you to change your password on your
-              first login.
+              {token
+                ? "Enter your new password below to regain access to your account."
+                : "Your administrator requires you to change your password on your first login."}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] font-bold text-slate-500 ml-1 uppercase tracking-widest">
-                Temporary Password
-              </label>
-              <div className="relative">
-                <input
-                  type="password"
-                  required
-                  placeholder="The password provided to you"
-                  className="w-full pl-12 pr-5 py-4 rounded-xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all bg-white/50 text-slate-900 placeholder:text-slate-300"
-                  value={form.currentPassword}
-                  onChange={(e) =>
-                    setForm({ ...form, currentPassword: e.target.value })
-                  }
-                />
-                <Lock
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"
-                  size={18}
-                />
+            {!token && (
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[11px] font-bold text-slate-500 ml-1 uppercase tracking-widest">
+                  Temporary Password
+                </label>
+                <div className="relative">
+                  <input
+                    type="password"
+                    required
+                    placeholder="The password provided to you"
+                    className="w-full pl-12 pr-5 py-4 rounded-xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all bg-white/50 text-slate-900 placeholder:text-slate-300"
+                    value={form.currentPassword}
+                    onChange={(e) =>
+                      setForm({ ...form, currentPassword: e.target.value })
+                    }
+                  />
+                  <Lock
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"
+                    size={18}
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="grid grid-cols-1 gap-5">
               <div className="flex flex-col gap-1.5">
@@ -175,16 +191,28 @@ export default function ResetPasswordPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-primary hover:bg-primary/80 text-white py-4 rounded-xl font-bold transition-all shadow-xl shadow-slate-900/10 active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-70 mt-2"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold transition-all shadow-xl shadow-blue-500/10 active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-70 mt-2"
             >
               {isLoading ? (
                 <Loader2 className="animate-spin" size={18} />
               ) : null}
-              {isLoading ? "Securing Account..." : "Set New Password & Login"}
+              {isLoading ? "Updating Password..." : token ? "Reset Password" : "Set New Password & Login"}
             </button>
           </form>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen w-full flex items-center justify-center bg-slate-50">
+        <Loader2 className="animate-spin text-blue-600" size={48} />
+      </div>
+    }>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }

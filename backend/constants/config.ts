@@ -33,3 +33,11 @@ export const DATABASE_URL = process.env.DATABASE_URL;
 export const JWT_SECRET = process.env.JWT_SECRET || "harbor_secret_key_123";
 export const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1d";
 
+// SMTP Config
+export const SMTP_HOST = process.env.SMTP_HOST;
+export const SMTP_PORT = parseInt(process.env.SMTP_PORT || "587");
+export const SMTP_USER = process.env.SMTP_USER;
+export const SMTP_PASS = process.env.SMTP_PASS;
+export const SMTP_FROM = process.env.SMTP_FROM || '"Harbor HRMS" <noreply@harbor.com>';
+export const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
+
