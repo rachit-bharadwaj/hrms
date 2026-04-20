@@ -11,7 +11,7 @@ export const createTask = async (req: AuthRequest, res: Response) => {
     const db = await connectDB();
 
     const creator = await db.select().from(employees).where(eq(employees.userId, userId as string)).limit(1);
-    if (!creator[0]) return res.status(404).json({ status: "error", message: "Employee not found" });
+    if (!creator[0]) return res.status(404).json({ status: "error", message: "Only employees can create/assign tasks" });
 
     const newTask = await db.insert(tasks).values({
       title,
@@ -35,7 +35,7 @@ export const getTasks = async (req: AuthRequest, res: Response) => {
     const db = await connectDB();
 
     const employee = await db.select().from(employees).where(eq(employees.userId, userId as string)).limit(1);
-    if (!employee[0]) return res.status(404).json({ status: "error", message: "Employee not found" });
+    const employeeId = employee[0]?.id;
 
     let query = db.select({
       id: tasks.id,
@@ -51,10 +51,27 @@ export const getTasks = async (req: AuthRequest, res: Response) => {
     .leftJoin(sql`employees e1`, eq(tasks.assignedToEmployeeId, sql`e1.id`))
     .leftJoin(sql`employees e2`, eq(tasks.assignedByEmployeeId, sql`e2.id`));
 
+    const userPermissions = req.user?.permissions || [];
+    const hasViewAll = userPermissions.includes("tasks.view_all");
+
+    if (type === "all" && !hasViewAll) {
+      return res.status(403).json({ status: "error", message: "Access denied: Missing tasks.view_all permission" });
+    }
+
     if (type === "assigned_to") {
-      query.where(eq(tasks.assignedToEmployeeId, employee[0].id));
+      if (!employeeId) return res.status(404).json({ status: "error", message: "Employee record not found for this user" });
+      query.where(eq(tasks.assignedToEmployeeId, employeeId));
     } else if (type === "assigned_by") {
-      query.where(eq(tasks.assignedByEmployeeId, employee[0].id));
+      if (!employeeId) return res.status(404).json({ status: "error", message: "Employee record not found for this user" });
+      query.where(eq(tasks.assignedByEmployeeId, employeeId));
+    } else if (type === "all") {
+      // No filter needed for "all" if they have permission
+    } else {
+       // Default to assigned_to if no type provided and they don't have view_all
+       if (!hasViewAll) {
+         if (!employeeId) return res.status(404).json({ status: "error", message: "Employee record not found for this user" });
+         query.where(eq(tasks.assignedToEmployeeId, employeeId));
+       }
     }
 
     const result = await query.orderBy(desc(tasks.createdAt));
@@ -82,6 +99,8 @@ export const addTaskComment = async (req: AuthRequest, res: Response) => {
     const db = await connectDB();
 
     const employee = await db.select().from(employees).where(eq(employees.userId, userId as string)).limit(1);
+    if (!employee[0]) return res.status(404).json({ status: "error", message: "Only employees can add task comments" });
+
     const newComment = await db.insert(taskComments).values({
       taskId,
       employeeId: employee[0].id,

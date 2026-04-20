@@ -35,6 +35,21 @@ export default function TasksPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<"assigned_to" | "assigned_by" | "all">("assigned_to");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [canViewAll, setCanViewAll] = useState(false);
+
+  useEffect(() => {
+    const fetchPerms = async () => {
+      try {
+        const res = await api.get("/auth/me");
+        if (res.data.status === "success") {
+          setCanViewAll(res.data.user.permissions.includes("tasks.view_all"));
+        }
+      } catch (e) {
+        console.error("Failed to fetch permissions");
+      }
+    };
+    fetchPerms();
+  }, []);
 
   useEffect(() => {
     fetchTasks();
@@ -108,6 +123,14 @@ export default function TasksPage() {
          >
            Assigned by Me
          </button>
+         {canViewAll && (
+           <button 
+             onClick={() => setFilter("all")}
+             className={`px-6 py-2.5 rounded-xl text-xs font-bold transition-all ${filter === "all" ? "bg-slate-900 text-white shadow-lg shadow-slate-900/10" : "text-slate-400 hover:text-slate-600"}`}
+           >
+             All Tasks
+           </button>
+         )}
       </div>
 
       <div className="grid grid-cols-1 gap-6">

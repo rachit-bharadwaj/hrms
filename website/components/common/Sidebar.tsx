@@ -110,11 +110,11 @@ export default function Sidebar() {
     { icon: Briefcase, label: "Employees", href: "/employees", permission: "employees.view" },
     { icon: Building2, label: "Departments", href: "/departments", permission: "departments.view" },
     { icon: CheckCircle2, label: "Attendance", href: "/attendance", permission: "attendance.view" },
-    { icon: Calendar, label: "Leaves", href: "/leaves", permission: "leaves.view_own" },
+    { icon: Calendar, label: "Leaves", href: "/leaves", permission: ["leaves.view_own", "leaves.view_all"] },
     { icon: CalendarDays, label: "Holidays", href: "/calendar", permission: "holidays.view" },
     { icon: ClipboardCheck, label: "Approvals", href: "/leaves/requests", permission: "leaves.approve" },
-    { icon: Banknote, label: "Payroll", href: "/payroll", permission: "payroll.view_own" },
-    { icon: ListTodo, label: "Tasks", href: "/tasks", permission: "tasks.view_own" },
+    { icon: Banknote, label: "Payroll", href: "/payroll", permission: ["payroll.view_own", "payroll.view_all"] },
+    { icon: ListTodo, label: "Tasks", href: "/tasks", permission: ["tasks.view_own", "tasks.view_all"] },
     { icon: User, label: "Users", href: "/users", permission: "users.manage" },
     { icon: Shield, label: "Roles", href: "/roles", permission: "roles.manage" },
     { icon: LockKeyhole, label: "Permissions", href: "/permissions", permission: "roles.manage" },
@@ -122,7 +122,8 @@ export default function Sidebar() {
 
   const filteredNavItems = navItems.filter(item => {
     if (!item.permission) return true;
-    return permissions.includes(item.permission);
+    const required = Array.isArray(item.permission) ? item.permission : [item.permission];
+    return required.some(p => permissions.includes(p));
   });
 
   const bottomItems = [

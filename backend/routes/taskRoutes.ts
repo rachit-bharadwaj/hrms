@@ -18,7 +18,7 @@ router.use(authenticate);
  *       200:
  *         description: List of tasks
  */
-router.get("/", authorize("tasks.view_own"), getTasks);
+router.get("/", authorize(["tasks.view_own", "tasks.view_all"]), getTasks);
 
 /**
  * @swagger
