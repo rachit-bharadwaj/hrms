@@ -33,6 +33,7 @@ export default function UsersPage() {
   const [roles, setRoles] = useState<Role[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [canViewRoles, setCanViewRoles] = useState(true);
 
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -47,12 +48,24 @@ export default function UsersPage() {
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      const [usersRes, rolesRes] = await Promise.all([
+      const results = await Promise.allSettled([
         api.get("/users"),
         api.get("/roles"),
       ]);
-      setUsers(usersRes.data.data);
-      setRoles(rolesRes.data.data);
+
+      if (results[0].status === "fulfilled") {
+        setUsers(results[0].value.data.data);
+      } else {
+        console.error("Failed to fetch users:", results[0].reason);
+      }
+
+      if (results[1].status === "fulfilled") {
+        setRoles(results[1].value.data.data);
+        setCanViewRoles(true);
+      } else {
+        console.error("Failed to fetch roles:", results[1].reason);
+        setCanViewRoles(false);
+      }
     } catch (error) {
       console.error("Failed to fetch data:", error);
     } finally {
@@ -162,7 +175,7 @@ export default function UsersPage() {
             <thead>
               <tr className="text-left text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-50 bg-slate-50/10">
                 <th className="pl-10 pr-6 py-5">User Profile</th>
-                <th className="px-6 py-5">Assigned Role</th>
+                {canViewRoles && <th className="px-6 py-5">Assigned Role</th>}
                 <th className="px-6 py-5">Access Status</th>
                 <th className="px-6 py-5">Last Activity</th>
                 <th className="pl-6 pr-10 py-5 text-right">Settings</th>
@@ -175,9 +188,11 @@ export default function UsersPage() {
                     <td className="pl-10 pr-6 py-5">
                       <div className="h-5 w-40 bg-slate-100 rounded-lg" />
                     </td>
-                    <td className="px-6 py-5">
-                      <div className="h-5 w-24 bg-slate-100 rounded-lg" />
-                    </td>
+                    {canViewRoles && (
+                      <td className="px-6 py-5">
+                        <div className="h-5 w-24 bg-slate-100 rounded-lg" />
+                      </td>
+                    )}
                     <td className="px-6 py-5">
                       <div className="h-5 w-16 bg-slate-100 rounded-lg" />
                     </td>
@@ -191,7 +206,7 @@ export default function UsersPage() {
                 ))
               ) : filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-10 py-24 text-center">
+                  <td colSpan={canViewRoles ? 5 : 4} className="px-10 py-24 text-center">
                     <div className="flex flex-col items-center gap-3 opacity-40">
                       <Search size={48} className="text-slate-300" />
                       <p className="text-sm font-bold text-slate-400 font-bricolage-grotesque">
@@ -216,12 +231,14 @@ export default function UsersPage() {
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-5">
-                      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-xl text-xs font-bold ring-1 ring-blue-100">
-                        <Shield size={12} className="opacity-70" />
-                        {getUserRolesText(user)}
-                      </div>
-                    </td>
+                    {canViewRoles && (
+                      <td className="px-6 py-5">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-xl text-xs font-bold ring-1 ring-blue-100">
+                          <Shield size={12} className="opacity-70" />
+                          {getUserRolesText(user)}
+                        </div>
+                      </td>
+                    )}
                     <td className="px-6 py-5">
                       <div
                         className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
@@ -278,6 +295,7 @@ export default function UsersPage() {
         onSubmit={handleCreateOrUpdate}
         roles={roles}
         initialData={editingUser}
+        showRoles={canViewRoles}
       />
 
       {/* Delete Confirmation */}

@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { authorize } from "../middleware/authMiddleware";
 import {
   getPermissions,
   getPermissionById,
@@ -8,6 +9,8 @@ import {
 } from "../controllers/permissionController";
 
 const permissionRoutes = Router();
+
+permissionRoutes.use(authorize("roles.manage"));
 
 /**
  * @swagger

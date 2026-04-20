@@ -87,7 +87,7 @@ export const authorize = (allowedPermissions: string | string[]) => {
     }
 
     const required = Array.isArray(allowedPermissions) ? allowedPermissions : [allowedPermissions];
-    const hasPermission = required.every(p => req.user?.permissions.includes(p));
+    const hasPermission = required.some(p => req.user?.permissions.includes(p));
 
     if (!hasPermission) {
       return res.status(403).json({ 

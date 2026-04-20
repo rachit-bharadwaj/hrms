@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { authorize } from "../middleware/authMiddleware";
 import {
   getUsers,
   getUserById,
@@ -8,6 +9,8 @@ import {
 } from "../controllers/userController";
 
 const userRoutes = Router();
+
+userRoutes.use(authorize("users.manage"));
 
 /**
  * @swagger

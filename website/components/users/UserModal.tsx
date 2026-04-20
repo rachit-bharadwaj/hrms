@@ -14,6 +14,7 @@ interface UserModalProps {
   onSubmit: (data: any) => Promise<void>;
   roles: Role[];
   initialData?: any;
+  showRoles?: boolean;
 }
 
 export default function UserModal({
@@ -22,6 +23,7 @@ export default function UserModal({
   onSubmit,
   roles,
   initialData,
+  showRoles = true,
 }: UserModalProps) {
   const [formData, setFormData] = useState({
     email: "",
@@ -89,7 +91,7 @@ export default function UserModal({
             </h2>
             <p className="text-xs text-slate-500 font-medium">
               {initialData
-                ? "Update account credentials and role"
+                ? `Update account credentials ${showRoles ? "and role" : ""}`
                 : "Create a new organization account"}
             </p>
           </div>
@@ -153,32 +155,34 @@ export default function UserModal({
             </div>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">
-              User Role
-            </label>
-            <div className="relative">
-              <Shield
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                size={18}
-              />
-              <select
-                required
-                value={formData.roleId}
-                onChange={(e) =>
-                  setFormData({ ...formData, roleId: e.target.value })
-                }
-                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all appearance-none"
-              >
-                <option value="">Select a role</option>
-                {roles.map((role) => (
-                  <option key={role.id} value={role.id}>
-                    {role.name}
-                  </option>
-                ))}
-              </select>
+          {showRoles && (
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">
+                User Role
+              </label>
+              <div className="relative">
+                <Shield
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  size={18}
+                />
+                <select
+                  required
+                  value={formData.roleId}
+                  onChange={(e) =>
+                    setFormData({ ...formData, roleId: e.target.value })
+                  }
+                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all appearance-none"
+                >
+                  <option value="">Select a role</option>
+                  {roles.map((role) => (
+                    <option key={role.id} value={role.id}>
+                      {role.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100 mt-2">
             <input
