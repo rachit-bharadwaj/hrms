@@ -1,49 +1,121 @@
 import connectDB from "../database/connection";
-import { users, roles, permissions, rolePermissions } from "../database/schema";
+import { users, roles, permissions, rolePermissions, userRoles } from "../database/schema";
 import crypto from "node:crypto";
+import { eq } from "drizzle-orm";
 
 const hashPassword = (password: string) => {
   return crypto.createHash("sha256").update(password).digest("hex");
 };
+
+const permissionCatalog = [
+  // Employees
+  { code: "employees.view", description: "View employee directory and profiles" },
+  { code: "employees.create", description: "Add new employees" },
+  { code: "employees.edit", description: "Update employee details" },
+  { code: "employees.delete", description: "Remove employees from system" },
+  
+  // Departments
+  { code: "departments.view", description: "View departments and stats" },
+  { code: "departments.manage", description: "Create, edit and delete departments" },
+  
+  // Attendance
+  { code: "attendance.view", description: "View attendance records and reports" },
+  { code: "attendance.mark", description: "Mark daily attendance" },
+  { code: "attendance.export", description: "Export attendance data to CSV/PDF" },
+  
+  // Leaves
+  { code: "leaves.view_own", description: "View own leave requests and balances" },
+  { code: "leaves.view_all", description: "View all employee leave requests" },
+  { code: "leaves.apply", description: "Apply for leave" },
+  { code: "leaves.approve", description: "Approve or reject leave requests" },
+  { code: "leaves.manage", description: "Manage leave types and carry-forward" },
+  
+  // Payroll
+  { code: "payroll.view_own", description: "View and download own payslips" },
+  { code: "payroll.view_all", description: "View all employee payslips" },
+  { code: "payroll.manage", description: "Process payroll and manage salary structures" },
+  
+  // Tasks
+  { code: "tasks.view_own", description: "View and update assigned tasks" },
+  { code: "tasks.view_all", description: "View all tasks in the system" },
+  { code: "tasks.assign", description: "Assign tasks to employees" },
+  { code: "tasks.update", description: "Update task status" },
+  { code: "tasks.comment", description: "Add comments to tasks" },
+  
+  // Holidays
+  { code: "holidays.view", description: "View holiday calendar" },
+  { code: "holidays.manage", description: "Add or remove holidays" },
+  
+  // Admin
+  { code: "dashboard.view", description: "Access the management dashboard" },
+  { code: "users.manage", description: "Manage system users and statuses" },
+  { code: "roles.manage", description: "Manage roles and permission mappings" },
+];
 
 async function seed() {
   console.log("🌱 Starting database seeding...");
   const db = await connectDB();
 
   try {
-    // 1. Create Super Admin Role
-    console.log("Creating Super Admin role...");
-    const [superAdminRole] = await db.insert(roles).values({
-      name: "Super Admin",
-      description: "Root user with full system access",
-    }).onConflictDoNothing().returning();
+    // 1. Seed Permissions
+    console.log("Seeding permissions...");
+    for (const perm of permissionCatalog) {
+      await db.insert(permissions).values(perm).onConflictDoUpdate({
+        target: permissions.code,
+        set: { description: perm.description }
+      });
+    }
 
-    const roleId = superAdminRole?.id || (await db.select().from(roles).where({ name: "Super Admin" }))[0].id;
+    // 2. Create Core Roles
+    console.log("Creating core roles...");
+    const roleValues = [
+      { name: "Super Admin", description: "Full system access" },
+      { name: "HR Manager", description: "Manage employees, departments and attendance" },
+      { name: "Manager", description: "Manage team attendance, leaves and tasks" },
+      { name: "Employee", description: "Standard employee access" },
+    ];
 
-    // 2. Create Master Permission
-    console.log("Creating Master permission...");
-    const [allAccessPermission] = await db.insert(permissions).values({
-      code: "ALL_ACCESS",
-      description: "Grants access to all modules and operations",
-    }).onConflictDoNothing().returning();
+    for (const roleVal of roleValues) {
+      await db.insert(roles).values(roleVal).onConflictDoNothing();
+    }
 
-    const permissionId = allAccessPermission?.id || (await db.select().from(permissions).where({ code: "ALL_ACCESS" }))[0].id;
+    // 3. Map Permissions to Roles (Example)
+    const allRoles = await db.select().from(roles);
+    const allPerms = await db.select().from(permissions);
 
-    // 3. Link Permission to Role
-    console.log("Linking permission to role...");
-    await db.insert(rolePermissions).values({
-      roleId,
-      permissionId,
-    }).onConflictDoNothing();
+    const getRoleId = (name: string) => allRoles.find(r => r.name === name)?.id;
+    const getPermId = (code: string) => allPerms.find(p => p.code === code)?.id;
+
+    // HR Manager permissions
+    const hrManagerId = getRoleId("HR Manager");
+    if (hrManagerId) {
+      const hrPerms = ["employees.view", "employees.create", "employees.edit", "departments.view", "attendance.view", "leaves.view_all", "dashboard.view"];
+      for (const code of hrPerms) {
+        const permId = getPermId(code);
+        if (permId) {
+          await db.insert(rolePermissions).values({ roleId: hrManagerId, permissionId: permId }).onConflictDoNothing();
+        }
+      }
+    }
 
     // 4. Create Super Admin User
     console.log("Creating Super Admin user...");
-    await db.insert(users).values({
+    const [adminUser] = await db.insert(users).values({
       email: "admin@harbor.hr",
-      passwordHash: hashPassword("admin123"), // Default password
-      roleId,
+      passwordHash: hashPassword("admin123"),
       isActive: true,
-    }).onConflictDoNothing();
+    }).onConflictDoUpdate({
+        target: users.email,
+        set: { updatedAt: new Date() }
+    }).returning();
+
+    const superAdminRoleId = getRoleId("Super Admin");
+    if (adminUser && superAdminRoleId) {
+      await db.insert(userRoles).values({
+        userId: adminUser.id,
+        roleId: superAdminRoleId
+      }).onConflictDoNothing();
+    }
 
     console.log("✅ Seeding completed successfully!");
     console.log("----------------------------------");

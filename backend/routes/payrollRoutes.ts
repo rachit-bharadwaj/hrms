@@ -26,7 +26,7 @@ router.use(authenticate);
  *       200:
  *         description: List of payslips
  */
-router.get("/my-payslips", getMyPayslips);
+router.get("/my-payslips", authorize("payroll.view_own"), getMyPayslips);
 
 /**
  * @swagger
@@ -46,7 +46,7 @@ router.get("/my-payslips", getMyPayslips);
  *       200:
  *         description: Payslip details
  */
-router.get("/payslip/:id", getPayslipDetail);
+router.get("/payslip/:id", authorize("payroll.view_own"), getPayslipDetail);
 
 // Admin routes
 
@@ -68,7 +68,7 @@ router.get("/payslip/:id", getPayslipDetail);
  *       200:
  *         description: Salary structure
  */
-router.get("/structure/:employeeId", authorize(["Super Admin", "HR Admin"]), getSalaryStructure);
+router.get("/structure/:employeeId", authorize("payroll.view_all"), getSalaryStructure);
 
 /**
  * @swagger
@@ -88,7 +88,7 @@ router.get("/structure/:employeeId", authorize(["Super Admin", "HR Admin"]), get
  *       200:
  *         description: Structure updated
  */
-router.put("/structure/:employeeId", authorize(["Super Admin", "HR Admin"]), updateSalaryStructure);
+router.put("/structure/:employeeId", authorize("payroll.manage"), updateSalaryStructure);
 
 /**
  * @swagger
@@ -102,6 +102,6 @@ router.put("/structure/:employeeId", authorize(["Super Admin", "HR Admin"]), upd
  *       200:
  *         description: Payroll processed
  */
-router.post("/process", authorize(["Super Admin", "HR Admin"]), processPayroll);
+router.post("/process", authorize("payroll.manage"), processPayroll);
 
 export default router;

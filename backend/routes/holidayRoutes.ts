@@ -18,7 +18,7 @@ router.use(authenticate);
  *       200:
  *         description: List of holidays
  */
-router.get("/", getHolidays);
+router.get("/", authorize("holidays.view"), getHolidays);
 
 /**
  * @swagger
@@ -32,7 +32,7 @@ router.get("/", getHolidays);
  *       201:
  *         description: Holiday added
  */
-router.post("/", authorize(["Super Admin", "HR Admin"]), addHoliday);
+router.post("/", authorize("holidays.manage"), addHoliday);
 
 /**
  * @swagger
@@ -52,6 +52,6 @@ router.post("/", authorize(["Super Admin", "HR Admin"]), addHoliday);
  *       200:
  *         description: Holiday deleted
  */
-router.delete("/:id", authorize(["Super Admin", "HR Admin"]), deleteHoliday);
+router.delete("/:id", authorize("holidays.manage"), deleteHoliday);
 
 export default router;

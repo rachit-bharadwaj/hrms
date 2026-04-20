@@ -37,7 +37,7 @@ export default function UserModal({
       setFormData({
         email: initialData.email || "",
         password: "", // Don't pre-fill password for editing
-        roleId: initialData.roleId || "",
+        roleId: initialData.roles && initialData.roles.length > 0 ? initialData.roles[0].id : "",
         isActive: initialData.isActive ?? true,
       });
     } else {

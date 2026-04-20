@@ -1,5 +1,6 @@
 "use client";
 
+import api from "@/lib/api";
 import { Logo } from "@/partials/common";
 import {
   Banknote,
@@ -83,8 +84,21 @@ const SidebarItem = ({
 export default function Sidebar() {
   const pathname = usePathname();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [permissions, setPermissions] = useState<string[]>([]);
 
   useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await api.get("/auth/me");
+        if (response.data.status === "success") {
+          setPermissions(response.data.user.permissions || []);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user permissions:", error);
+      }
+    };
+    fetchUser();
+
     document.documentElement.style.setProperty(
       "--sidebar-width",
       isExpanded ? "240px" : "72px",
@@ -92,19 +106,24 @@ export default function Sidebar() {
   }, [isExpanded]);
 
   const navItems = [
-    { icon: BarChart3, label: "Dashboard", href: "/" },
-    { icon: Briefcase, label: "Employees", href: "/employees" },
-    { icon: Building2, label: "Departments", href: "/departments" },
-    { icon: CheckCircle2, label: "Attendance", href: "/attendance" },
-    { icon: Calendar, label: "Leaves", href: "/leaves" },
-    { icon: CalendarDays, label: "Holidays", href: "/calendar" },
-    { icon: ClipboardCheck, label: "Approvals", href: "/leaves/requests" },
-    { icon: Banknote, label: "Payroll", href: "/payroll" },
-    { icon: ListTodo, label: "Tasks", href: "/tasks" },
-    { icon: User, label: "Users", href: "/users" },
-    { icon: Shield, label: "Roles", href: "/roles" },
-    { icon: LockKeyhole, label: "Permissions", href: "/permissions" },
+    { icon: BarChart3, label: "Dashboard", href: "/", permission: "dashboard.view" },
+    { icon: Briefcase, label: "Employees", href: "/employees", permission: "employees.view" },
+    { icon: Building2, label: "Departments", href: "/departments", permission: "departments.view" },
+    { icon: CheckCircle2, label: "Attendance", href: "/attendance", permission: "attendance.view" },
+    { icon: Calendar, label: "Leaves", href: "/leaves", permission: "leaves.view_own" },
+    { icon: CalendarDays, label: "Holidays", href: "/calendar", permission: "holidays.view" },
+    { icon: ClipboardCheck, label: "Approvals", href: "/leaves/requests", permission: "leaves.approve" },
+    { icon: Banknote, label: "Payroll", href: "/payroll", permission: "payroll.view_own" },
+    { icon: ListTodo, label: "Tasks", href: "/tasks", permission: "tasks.view_own" },
+    { icon: User, label: "Users", href: "/users", permission: "users.manage" },
+    { icon: Shield, label: "Roles", href: "/roles", permission: "roles.manage" },
+    { icon: LockKeyhole, label: "Permissions", href: "/permissions", permission: "roles.manage" },
   ];
+
+  const filteredNavItems = navItems.filter(item => {
+    if (!item.permission) return true;
+    return permissions.includes(item.permission);
+  });
 
   const bottomItems = [
     { icon: Settings, label: "Settings", href: "/settings" },
@@ -137,7 +156,7 @@ export default function Sidebar() {
       <nav
         className={`flex-1 flex flex-col gap-3 ${isExpanded ? "w-full" : ""}`}
       >
-        {navItems.map((item) => (
+        {filteredNavItems.map((item) => (
           <SidebarItem
             key={item.href}
             {...item}

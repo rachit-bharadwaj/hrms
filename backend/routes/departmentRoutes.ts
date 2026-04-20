@@ -23,7 +23,7 @@ const router = Router();
  *       200:
  *         description: List of departments
  */
-router.get("/", getDepartments);
+router.get("/", authorize("departments.view"), getDepartments);
 
 /**
  * @swagger
@@ -37,7 +37,7 @@ router.get("/", getDepartments);
  *       200:
  *         description: Department stats
  */
-router.get("/stats", getDepartmentStats);
+router.get("/stats", authorize("departments.view"), getDepartmentStats);
 
 /**
  * @swagger
@@ -57,7 +57,7 @@ router.get("/stats", getDepartmentStats);
  *       200:
  *         description: Department data
  */
-router.get("/:id", getDepartmentById);
+router.get("/:id", authorize("departments.view"), getDepartmentById);
 
 /**
  * @swagger
@@ -71,7 +71,7 @@ router.get("/:id", getDepartmentById);
  *       201:
  *         description: Department created
  */
-router.post("/", authorize(["Super Admin"]), createDepartment);
+router.post("/", authorize("departments.manage"), createDepartment);
 
 /**
  * @swagger
@@ -91,7 +91,7 @@ router.post("/", authorize(["Super Admin"]), createDepartment);
  *       200:
  *         description: Department updated
  */
-router.put("/:id", authorize(["Super Admin"]), updateDepartment);
+router.put("/:id", authorize("departments.manage"), updateDepartment);
 
 /**
  * @swagger
@@ -111,6 +111,6 @@ router.put("/:id", authorize(["Super Admin"]), updateDepartment);
  *       200:
  *         description: Department deleted
  */
-router.delete("/:id", authorize(["Super Admin"]), deleteDepartment);
+router.delete("/:id", authorize("departments.manage"), deleteDepartment);
 
 export default router;

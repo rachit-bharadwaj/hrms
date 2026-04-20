@@ -28,7 +28,7 @@ const router = Router();
  *       200:
  *         description: Attendance records
  */
-router.get("/", getAttendanceByDate);
+router.get("/", authorize("attendance.view"), getAttendanceByDate);
 
 /**
  * @swagger
@@ -42,7 +42,7 @@ router.get("/", getAttendanceByDate);
  *       200:
  *         description: Attendance marked
  */
-router.post("/mark", markAttendance);
+router.post("/mark", authorize("attendance.mark"), markAttendance);
 
 /**
  * @swagger
@@ -56,7 +56,7 @@ router.post("/mark", markAttendance);
  *       200:
  *         description: Attendance marked
  */
-router.post("/bulk-mark", authorize(["Super Admin", "HR Admin"]), bulkMarkAttendance);
+router.post("/bulk-mark", authorize("attendance.mark"), bulkMarkAttendance);
 
 /**
  * @swagger
@@ -76,7 +76,7 @@ router.post("/bulk-mark", authorize(["Super Admin", "HR Admin"]), bulkMarkAttend
  *       200:
  *         description: Monthly report
  */
-router.get("/employee/:employeeId", getEmployeeMonthlyReport);
+router.get("/employee/:employeeId", authorize("attendance.view"), getEmployeeMonthlyReport);
 
 /**
  * @swagger
@@ -90,7 +90,7 @@ router.get("/employee/:employeeId", getEmployeeMonthlyReport);
  *       200:
  *         description: Department summary
  */
-router.get("/department-summary", getDepartmentAttendanceSummary);
+router.get("/department-summary", authorize("attendance.view"), getDepartmentAttendanceSummary);
 
 /**
  * @swagger
@@ -104,6 +104,6 @@ router.get("/department-summary", getDepartmentAttendanceSummary);
  *       200:
  *         description: CSV file
  */
-router.get("/export", exportAttendanceCSV);
+router.get("/export", authorize("attendance.export"), exportAttendanceCSV);
 
 export default router;

@@ -18,7 +18,7 @@ router.use(authenticate);
  *       200:
  *         description: List of tasks
  */
-router.get("/", getTasks);
+router.get("/", authorize("tasks.view_own"), getTasks);
 
 /**
  * @swagger
@@ -32,7 +32,7 @@ router.get("/", getTasks);
  *       201:
  *         description: Task created
  */
-router.post("/", authorize(["Super Admin", "HR Admin", "Manager"]), createTask);
+router.post("/", authorize("tasks.assign"), createTask);
 
 /**
  * @swagger
@@ -52,7 +52,7 @@ router.post("/", authorize(["Super Admin", "HR Admin", "Manager"]), createTask);
  *       200:
  *         description: Task updated
  */
-router.put("/:id", updateTask);
+router.put("/:id", authorize("tasks.update"), updateTask);
 
 /**
  * @swagger
@@ -66,6 +66,6 @@ router.put("/:id", updateTask);
  *       201:
  *         description: Comment added
  */
-router.post("/comment", addTaskComment);
+router.post("/comment", authorize("tasks.comment"), addTaskComment);
 
 export default router;

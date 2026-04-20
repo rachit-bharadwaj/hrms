@@ -22,7 +22,7 @@ const router = Router();
  *       200:
  *         description: List of employees
  */
-router.get("/", authorize(["Super Admin", "HR Manager"]), getEmployees);
+router.get("/", authorize("employees.view"), getEmployees);
 
 /**
  * @swagger
@@ -42,7 +42,7 @@ router.get("/", authorize(["Super Admin", "HR Manager"]), getEmployees);
  *       200:
  *         description: Employee data
  */
-router.get("/:id", authorize(["Super Admin", "HR Manager", "Department Head"]), getEmployeeById);
+router.get("/:id", authorize("employees.view"), getEmployeeById);
 
 /**
  * @swagger
@@ -56,7 +56,7 @@ router.get("/:id", authorize(["Super Admin", "HR Manager", "Department Head"]), 
  *       201:
  *         description: Employee created
  */
-router.post("/", authorize(["Super Admin", "HR Manager"]), createEmployee);
+router.post("/", authorize("employees.create"), createEmployee);
 
 /**
  * @swagger
@@ -76,7 +76,7 @@ router.post("/", authorize(["Super Admin", "HR Manager"]), createEmployee);
  *       200:
  *         description: Employee updated
  */
-router.put("/:id", authorize(["Super Admin", "HR Manager"]), updateEmployee);
+router.put("/:id", authorize("employees.edit"), updateEmployee);
 
 /**
  * @swagger
@@ -96,6 +96,6 @@ router.put("/:id", authorize(["Super Admin", "HR Manager"]), updateEmployee);
  *       200:
  *         description: Employee deleted
  */
-router.delete("/:id", authorize(["Super Admin", "HR Manager"]), deleteEmployee);
+router.delete("/:id", authorize("employees.delete"), deleteEmployee);
 
 export default router;

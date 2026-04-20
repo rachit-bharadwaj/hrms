@@ -1,5 +1,6 @@
 import express from "express";
 import { getDashboardSummary } from "../controllers/dashboardController";
+import { authorize } from "../middleware/authMiddleware";
 
 const router = express.Router();
 
@@ -15,6 +16,6 @@ const router = express.Router();
  *       200:
  *         description: Dashboard statistics and trends
  */
-router.get("/summary", getDashboardSummary);
+router.get("/summary", authorize("dashboard.view"), getDashboardSummary);
 
 export default router;

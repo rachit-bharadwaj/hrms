@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import connectDB from "../database/connection";
-import { users, roles, employees, departments } from "../database/schema";
-import { eq } from "drizzle-orm";
+import { users, roles, userRoles, employees, departments, permissions, rolePermissions } from "../database/schema";
+import { eq, inArray } from "drizzle-orm";
 import crypto from "node:crypto";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET, JWT_EXPIRES_IN } from "../constants/config";
@@ -27,10 +27,6 @@ export const login = async (req: Request, res: Response) => {
 
     const user = userResult[0];
 
-    // Fetch role details
-    const roleResult = await db.select().from(roles).where(eq(roles.id, user.roleId)).limit(1);
-    const roleName = roleResult.length > 0 ? roleResult[0].name : "User";
-
     // Check password
     if (user.passwordHash !== hashPassword(password)) {
       return res.status(401).json({ status: "error", message: "Invalid email or password" });
@@ -38,6 +34,33 @@ export const login = async (req: Request, res: Response) => {
 
     if (!user.isActive) {
       return res.status(403).json({ status: "error", message: "Account is inactive. Please contact HR." });
+    }
+
+    // Fetch roles
+    const userRoleResult = await db
+      .select({ 
+        roleId: userRoles.roleId,
+        roleName: roles.name 
+      })
+      .from(userRoles)
+      .innerJoin(roles, eq(userRoles.roleId, roles.id))
+      .where(eq(userRoles.userId, user.id));
+    
+    const roleNames = userRoleResult.map((r: any) => r.roleName);
+    const roleIds = userRoleResult.map((r: any) => r.roleId);
+
+    // Resolve permissions for frontend UX
+    let permissionCodes: string[] = [];
+    if (roleNames.includes("Super Admin")) {
+      const allPerms = await db.select({ code: permissions.code }).from(permissions);
+      permissionCodes = allPerms.map((p: any) => p.code);
+    } else if (roleIds.length > 0) {
+      const perms = await db
+        .select({ code: permissions.code })
+        .from(permissions)
+        .innerJoin(rolePermissions, eq(permissions.id, rolePermissions.permissionId))
+        .where(inArray(rolePermissions.roleId, roleIds));
+      permissionCodes = Array.from(new Set(perms.map((p: any) => p.code)));
     }
 
     // Update last login
@@ -48,8 +71,6 @@ export const login = async (req: Request, res: Response) => {
       { 
         id: user.id, 
         email: user.email, 
-        roleId: user.roleId, 
-        role: roleName,
         mustChangePassword: user.mustChangePassword 
       },
       JWT_SECRET,
@@ -62,7 +83,11 @@ export const login = async (req: Request, res: Response) => {
       status: "success",
       message: "Successfully logged in",
       token,
-      user: userWithoutPassword,
+      user: {
+        ...userWithoutPassword,
+        roles: roleNames,
+        permissions: permissionCodes
+      },
     });
   } catch (error: any) {
     res.status(500).json({ status: "error", message: error.message });
@@ -94,6 +119,8 @@ export const getMe = async (req: any, res: Response) => {
         name: employee ? `${employee.firstName} ${employee.lastName}` : "User",
         avatar: employee?.photoUrl || null,
         designation: employee?.designation || null,
+        roles: req.user.roles,
+        permissions: req.user.permissions
       },
     });
   } catch (error: any) {

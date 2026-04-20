@@ -17,7 +17,7 @@ import { useEffect, useState } from "react";
 interface User {
   id: string;
   email: string;
-  roleId: string;
+  roles: { id: string; name: string }[];
   isActive: boolean;
   lastLoginAt: string | null;
   createdAt: string;
@@ -36,7 +36,7 @@ export default function UsersPage() {
 
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editingUser, setEditingUser] = useState<any>(null);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
@@ -81,8 +81,9 @@ export default function UsersPage() {
     }
   };
 
-  const getRoleName = (roleId: string) => {
-    return roles.find((r) => r.id === roleId)?.name || "Unknown";
+  const getUserRolesText = (user: User) => {
+    if (!user.roles || user.roles.length === 0) return "Unknown";
+    return user.roles.map(r => r.name).join(", ");
   };
 
   const formatDate = (dateStr: string) => {
@@ -126,7 +127,7 @@ export default function UsersPage() {
         {[
           { label: "Accounts", value: users.length, color: "text-slate-900", icon: Users },
           { label: "Active", value: users.filter(u => u.isActive).length, color: "text-emerald-500", icon: Circle },
-          { label: "Admins", value: users.filter(u => getRoleName(u.roleId).includes("Admin")).length, color: "text-blue-500", icon: Shield },
+          { label: "Admins", value: users.filter(u => getUserRolesText(u).includes("Admin")).length, color: "text-blue-500", icon: Shield },
           { label: "Restricted", value: users.filter(u => !u.isActive).length, color: "text-red-500", icon: AlertCircle }
         ].map((stat, i) => (
           <div key={i} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between group hover:shadow-lg hover:shadow-blue-500/5 transition-all">
@@ -218,7 +219,7 @@ export default function UsersPage() {
                     <td className="px-6 py-5">
                       <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-xl text-xs font-bold ring-1 ring-blue-100">
                         <Shield size={12} className="opacity-70" />
-                        {getRoleName(user.roleId)}
+                        {getUserRolesText(user)}
                       </div>
                     </td>
                     <td className="px-6 py-5">

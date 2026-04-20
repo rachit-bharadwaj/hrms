@@ -29,7 +29,7 @@ router.use(authenticate);
  *       200:
  *         description: List of leave types
  */
-router.get("/types", getLeaveTypes);
+router.get("/types", authorize("leaves.view_own"), getLeaveTypes);
 
 /**
  * @swagger
@@ -43,7 +43,7 @@ router.get("/types", getLeaveTypes);
  *       201:
  *         description: Leave applied
  */
-router.post("/apply", applyLeave);
+router.post("/apply", authorize("leaves.apply"), applyLeave);
 
 /**
  * @swagger
@@ -57,7 +57,7 @@ router.post("/apply", applyLeave);
  *       200:
  *         description: List of leave requests
  */
-router.get("/my-requests", getMyLeaveRequests);
+router.get("/my-requests", authorize("leaves.view_own"), getMyLeaveRequests);
 
 /**
  * @swagger
@@ -71,7 +71,7 @@ router.get("/my-requests", getMyLeaveRequests);
  *       200:
  *         description: Leave balances
  */
-router.get("/balances", getLeaveBalances);
+router.get("/balances", authorize("leaves.view_own"), getLeaveBalances);
 
 // Manager/Admin routes
 
@@ -87,7 +87,7 @@ router.get("/balances", getLeaveBalances);
  *       200:
  *         description: List of pending requests
  */
-router.get("/pending", authorize(["Super Admin", "HR Admin", "Manager"]), getPendingLeaveRequests);
+router.get("/pending", authorize("leaves.approve"), getPendingLeaveRequests);
 
 /**
  * @swagger
@@ -107,7 +107,7 @@ router.get("/pending", authorize(["Super Admin", "HR Admin", "Manager"]), getPen
  *       200:
  *         description: Status updated
  */
-router.put("/status/:id", authorize(["Super Admin", "HR Admin", "Manager"]), updateLeaveStatus);
+router.put("/status/:id", authorize("leaves.approve"), updateLeaveStatus);
 
 // Admin-only logic
 
@@ -123,7 +123,7 @@ router.put("/status/:id", authorize(["Super Admin", "HR Admin", "Manager"]), upd
  *       200:
  *         description: Leaves carried forward
  */
-router.post("/carry-forward", authorize(["Super Admin", "HR Admin"]), carryForwardLeaves);
+router.post("/carry-forward", authorize("leaves.manage"), carryForwardLeaves);
 
 /**
  * @swagger
@@ -137,6 +137,6 @@ router.post("/carry-forward", authorize(["Super Admin", "HR Admin"]), carryForwa
  *       201:
  *         description: Leave encashed
  */
-router.post("/encash", authorize(["Super Admin", "HR Admin"]), encashLeave);
+router.post("/encash", authorize("leaves.manage"), encashLeave);
 
 export default router;

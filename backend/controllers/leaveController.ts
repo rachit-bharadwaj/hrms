@@ -109,7 +109,7 @@ export const getMyLeaveRequests = async (req: AuthRequest, res: Response) => {
 export const getPendingLeaveRequests = async (req: AuthRequest, res: Response) => {
   try {
     const db = await connectDB();
-    const userRole = req.user?.role;
+    const userRoles = req.user?.roles || [];
     const userId = req.user?.id;
 
     let query = db
@@ -128,7 +128,7 @@ export const getPendingLeaveRequests = async (req: AuthRequest, res: Response) =
       .innerJoin(employees, eq(leaveRequests.employeeId, employees.id))
       .innerJoin(leaveTypes, eq(leaveRequests.leaveTypeId, leaveTypes.id));
 
-    if (userRole === "Manager") {
+    if (userRoles.includes("Manager")) {
       const manager = await db.select().from(employees).where(eq(employees.userId, userId as string)).limit(1);
       if (manager[0]) {
         query.where(and(eq(leaveRequests.status, "PENDING"), eq(employees.managerEmployeeId, manager[0].id)));

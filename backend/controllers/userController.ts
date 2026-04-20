@@ -1,9 +1,11 @@
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { Request, Response } from "express";
 import crypto from "node:crypto";
 import connectDB from "../database/connection";
 import { 
   users, 
+  userRoles,
+  roles,
   employees, 
   payrollRuns, 
   attendanceRecords, 
@@ -27,7 +29,6 @@ export const getUsers = async (req: Request, res: Response) => {
       .select({
         id: users.id,
         email: users.email,
-        roleId: users.roleId,
         isActive: users.isActive,
         lastLoginAt: users.lastLoginAt,
         createdAt: users.createdAt,
@@ -35,7 +36,30 @@ export const getUsers = async (req: Request, res: Response) => {
       .from(users)
       .orderBy(desc(users.createdAt));
 
-    res.status(200).json({ status: "success", data: allUsers });
+    // Fetch roles for these users
+    const userIds = allUsers.map((u: any) => u.id);
+    let userRolesList: any[] = [];
+    
+    if (userIds.length > 0) {
+      userRolesList = await db
+        .select({
+          userId: userRoles.userId,
+          roleId: userRoles.roleId,
+          roleName: roles.name,
+        })
+        .from(userRoles)
+        .innerJoin(roles, eq(userRoles.roleId, roles.id))
+        .where(inArray(userRoles.userId, userIds));
+    }
+
+    const usersWithRoles = allUsers.map((user: any) => ({
+      ...user,
+      roles: userRolesList
+        .filter((ur: any) => ur.userId === user.id)
+        .map((ur: any) => ({ id: ur.roleId, name: ur.roleName })),
+    }));
+
+    res.status(200).json({ status: "success", data: usersWithRoles });
   } catch (error: any) {
     res.status(500).json({ status: "error", message: error.message });
   }
@@ -53,9 +77,21 @@ export const getUserById = async (req: Request, res: Response) => {
         .json({ status: "error", message: "User not found" });
     }
 
+    const associatedRoles = await db
+      .select({
+        id: roles.id,
+        name: roles.name
+      })
+      .from(userRoles)
+      .innerJoin(roles, eq(userRoles.roleId, roles.id))
+      .where(eq(userRoles.userId, id));
+
     // Remove password hash from response
     const { passwordHash, ...userWithoutPassword } = user[0];
-    res.status(200).json({ status: "success", data: userWithoutPassword });
+    res.status(200).json({ 
+      status: "success", 
+      data: { ...userWithoutPassword, roles: associatedRoles } 
+    });
   } catch (error: any) {
     res.status(500).json({ status: "error", message: error.message });
   }
@@ -79,10 +115,16 @@ export const createUser = async (req: Request, res: Response) => {
       .values({
         email,
         passwordHash,
-        roleId,
-        // mustChangePassword: true,
       })
       .returning();
+
+    const userId = newUser[0].id;
+
+    // Assign role
+    await db.insert(userRoles).values({
+      userId,
+      roleId,
+    });
 
     const { passwordHash: _, ...userWithoutPassword } = newUser[0];
     res.status(201).json({ status: "success", data: userWithoutPassword });
@@ -109,7 +151,6 @@ export const updateUser = async (req: Request, res: Response) => {
     };
 
     if (email) updateData.email = email;
-    if (roleId) updateData.roleId = roleId;
     if (isActive !== undefined) updateData.isActive = isActive;
     if (password) updateData.passwordHash = hashPassword(password);
 
@@ -123,6 +164,16 @@ export const updateUser = async (req: Request, res: Response) => {
       return res
         .status(404)
         .json({ status: "error", message: "User not found" });
+    }
+
+    if (roleId) {
+      // For simplicity in this update, we clear old roles and set the new one
+      // In a multi-role UI, this would be more granular
+      await db.delete(userRoles).where(eq(userRoles.userId, id));
+      await db.insert(userRoles).values({
+        userId: id,
+        roleId,
+      });
     }
 
     const { passwordHash, ...userWithoutPassword } = updatedUser[0];

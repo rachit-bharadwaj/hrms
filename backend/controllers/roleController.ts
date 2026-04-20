@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import connectDB from "../database/connection";
-import { roles, rolePermissions, permissions, users } from "../database/schema";
+import { roles, rolePermissions, permissions, users, userRoles } from "../database/schema";
 import { eq, desc, and } from "drizzle-orm";
 
 export const getRoles = async (req: Request, res: Response) => {
@@ -88,7 +88,7 @@ export const deleteRole = async (req: Request, res: Response) => {
     const db = await connectDB();
 
     // 1. Check if any users are assigned to this role
-    const assignedUsers = await db.select().from(users).where(eq(users.roleId, id)).limit(1);
+    const assignedUsers = await db.select().from(userRoles).where(eq(userRoles.roleId, id)).limit(1);
     if (assignedUsers.length > 0) {
       return res.status(400).json({ 
         status: "error", 
