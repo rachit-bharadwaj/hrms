@@ -120,7 +120,7 @@ export default function PermissionsPage() {
             System Permissions
           </h1>
           <p className="text-slate-500 text-sm font-medium">
-            Fine-grained access control identifiers for the Harbor HRMS engine.
+            Fine-grained access control identifiers for the Harbor HRMS.
           </p>
         </div>
         <button

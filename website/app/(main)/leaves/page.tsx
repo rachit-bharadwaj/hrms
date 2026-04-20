@@ -13,15 +13,26 @@ import {
   CheckCircle2,
   XCircle,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import LeaveBalanceCard from "@/components/leaves/LeaveBalanceCard";
 import LeaveApplicationModal from "@/components/leaves/LeaveApplicationModal";
+import LeaveTypesManager from "@/components/leaves/LeaveTypesManager";
 
 export default function LeavesPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-slate-500">Loading...</div>}>
+      <LeavesView />
+    </Suspense>
+  );
+}
+
+function LeavesView() {
   const [balances, setBalances] = useState([]);
   const [requests, setRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [activeTab, setActiveTab] = useState("personal");
 
   useEffect(() => {
     fetchData();
@@ -30,10 +41,12 @@ export default function LeavesPage() {
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      const [bRes, rRes] = await Promise.all([
+      const [uRes, bRes, rRes] = await Promise.all([
+        api.get("/auth/me"),
         api.get("/leaves/balances"),
         api.get("/leaves/my-requests"),
       ]);
+      setIsAdmin(uRes.data.user.roles.includes("Super Admin"));
       setBalances(bRes.data.data);
       setRequests(rRes.data.data);
     } catch (error) {
@@ -77,17 +90,43 @@ export default function LeavesPage() {
             Track your leave cycles, balances, and historical applications.
           </p>
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/80 text-white px-8 py-4 rounded-[22px] text-sm font-bold transition-all shadow-xl shadow-slate-900/10 active:scale-95 whitespace-nowrap"
-        >
-          <Plus size={20} />
-          <span>Apply for Leave</span>
-        </button>
+        <div className="flex items-center gap-4">
+          {isAdmin && (
+            <div className="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
+              <button
+                onClick={() => setActiveTab("personal")}
+                className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                  activeTab === "personal" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                My Leaves
+              </button>
+              <button
+                onClick={() => setActiveTab("management")}
+                className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                  activeTab === "management" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                Management
+              </button>
+            </div>
+          )}
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/80 text-white px-8 py-4 rounded-[22px] text-sm font-bold transition-all shadow-xl shadow-slate-900/10 active:scale-95 whitespace-nowrap"
+          >
+            <Plus size={20} />
+            <span>Apply for Leave</span>
+          </button>
+        </div>
       </div>
 
-      {/* Balances Section */}
-      <div className="space-y-6">
+      {isAdmin && activeTab === "management" ? (
+        <LeaveTypesManager />
+      ) : (
+        <>
+          {/* Balances Section */}
+          <div className="space-y-6">
         <div className="flex items-center gap-3">
           <div className="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
             <LayoutGrid size={18} />
@@ -232,6 +271,8 @@ export default function LeavesPage() {
           </table>
         </div>
       </div>
+    </>
+  )}
 
       <LeaveApplicationModal
         isOpen={isModalOpen}

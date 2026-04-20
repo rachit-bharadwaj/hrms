@@ -8,8 +8,89 @@ import { calculateWorkingDays } from "../utils/calculations";
 export const getLeaveTypes = async (req: Request, res: Response) => {
   try {
     const db = await connectDB();
-    const types = await db.select().from(leaveTypes);
+    const types = await db.select().from(leaveTypes).orderBy(desc(leaveTypes.createdAt));
     res.status(200).json({ status: "success", data: types });
+  } catch (error: any) {
+    res.status(500).json({ status: "error", message: error.message });
+  }
+};
+
+export const createLeaveType = async (req: Request, res: Response) => {
+  try {
+    const db = await connectDB();
+    const newType = await db.insert(leaveTypes).values({
+      ...req.body,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }).returning();
+
+    // After creating a new leave type, we should initialize balances for all active employees for the current year
+    const activeEmployees = await db.select({ id: employees.id }).from(employees).where(eq(employees.status, 'Active'));
+    const currentYear = new Date().getFullYear();
+
+    if (activeEmployees.length > 0) {
+      const balanceValues = activeEmployees.map((emp: any) => ({
+        employeeId: emp.id,
+        leaveTypeId: newType[0].id,
+        year: currentYear,
+        openingBalance: newType[0].annualQuota,
+        accrued: 0,
+        availed: 0,
+        closingBalance: newType[0].annualQuota,
+      }));
+
+      await db.insert(leaveBalances).values(balanceValues);
+    }
+
+    res.status(201).json({ status: "success", data: newType[0] });
+  } catch (error: any) {
+    res.status(500).json({ status: "error", message: error.message });
+  }
+};
+
+export const updateLeaveType = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    const db = await connectDB();
+    const updated = await db
+      .update(leaveTypes)
+      .set({ ...req.body, updatedAt: new Date() })
+      .where(eq(leaveTypes.id, id))
+      .returning();
+
+    if (updated.length === 0) {
+      return res.status(404).json({ status: "error", message: "Leave type not found" });
+    }
+
+    res.status(200).json({ status: "success", data: updated[0] });
+  } catch (error: any) {
+    res.status(500).json({ status: "error", message: error.message });
+  }
+};
+
+export const deleteLeaveType = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    const db = await connectDB();
+
+    // Check if any requests or balances exist for this type
+    const requestCount = await db.select().from(leaveRequests).where(eq(leaveRequests.leaveTypeId, id)).limit(1);
+    const balanceCount = await db.select().from(leaveBalances).where(eq(leaveBalances.leaveTypeId, id)).limit(1);
+
+    if (requestCount.length > 0 || balanceCount.length > 0) {
+      return res.status(400).json({ 
+        status: "error", 
+        message: "Cannot delete leave type as it has associated leave requests or balances. Try deactivating it instead (if supported) or manually clearing records." 
+      });
+    }
+
+    const deleted = await db.delete(leaveTypes).where(eq(leaveTypes.id, id)).returning();
+
+    if (deleted.length === 0) {
+      return res.status(404).json({ status: "error", message: "Leave type not found" });
+    }
+
+    res.status(200).json({ status: "success", message: "Leave type deleted successfully" });
   } catch (error: any) {
     res.status(500).json({ status: "error", message: error.message });
   }

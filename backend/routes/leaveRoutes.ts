@@ -8,6 +8,9 @@ import {
   getLeaveBalances,
   carryForwardLeaves,
   encashLeave,
+  createLeaveType,
+  updateLeaveType,
+  deleteLeaveType,
 } from "../controllers/leaveController";
 import { authenticate, authorize } from "../middleware/authMiddleware";
 
@@ -138,5 +141,59 @@ router.post("/carry-forward", authorize("leaves.manage"), carryForwardLeaves);
  *         description: Leave encashed
  */
 router.post("/encash", authorize("leaves.manage"), encashLeave);
+
+/**
+ * @swagger
+ * /api/leaves/types:
+ *   post:
+ *     summary: Create a new leave type (Admin)
+ *     tags: [Leaves]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       201:
+ *         description: Leave type created
+ */
+router.post("/types", authorize("leaves.manage"), createLeaveType);
+
+/**
+ * @swagger
+ * /api/leaves/types/{id}:
+ *   put:
+ *     summary: Update a leave type (Admin)
+ *     tags: [Leaves]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Leave type updated
+ */
+router.put("/types/:id", authorize("leaves.manage"), updateLeaveType);
+
+/**
+ * @swagger
+ * /api/leaves/types/{id}:
+ *   delete:
+ *     summary: Delete a leave type (Admin)
+ *     tags: [Leaves]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Leave type deleted
+ */
+router.delete("/types/:id", authorize("leaves.manage"), deleteLeaveType);
 
 export default router;
