@@ -11,9 +11,8 @@ import {
   CalendarDays,
   CheckCircle2,
   ClipboardCheck,
-  HelpCircle,
-  LockKeyhole,
   ListTodo,
+  LockKeyhole,
   Menu,
   Settings,
   Shield,
@@ -183,10 +182,7 @@ export default function Sidebar() {
     return required.some((p) => permissions.includes(p));
   });
 
-  const bottomItems = [
-    { icon: Settings, label: "Settings", href: "/settings" },
-    { icon: HelpCircle, label: "Help Center", href: "/help" },
-  ];
+  const bottomItems = [{ icon: Settings, label: "Settings", href: "/account" }];
 
   return (
     <aside
