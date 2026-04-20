@@ -11,6 +11,8 @@ import payrollRoutes from "./payrollRoutes";
 import holidayRoutes from "./holidayRoutes";
 import taskRoutes from "./taskRoutes";
 import dashboardRoutes from "./dashboardRoutes";
+import searchRoutes from "./searchRoutes";
+
 
 export { 
   baseRoutes, 
@@ -25,5 +27,6 @@ export {
   payrollRoutes,
   holidayRoutes,
   taskRoutes,
-  dashboardRoutes
+  dashboardRoutes,
+  searchRoutes
 };

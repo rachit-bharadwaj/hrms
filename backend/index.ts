@@ -22,7 +22,8 @@ import {
   payrollRoutes,
   holidayRoutes,
   taskRoutes,
-  dashboardRoutes
+  dashboardRoutes,
+  searchRoutes
 } from "./routes";
 import { authenticate, authorize } from "./middleware/authMiddleware";
 import setupSwagger from "./utils/swagger";
@@ -77,6 +78,8 @@ app.use("/api/payroll", payrollRoutes);
 app.use("/api/holidays", holidayRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/search", searchRoutes);
+
 
 // start the server
 const startServer = async () => {

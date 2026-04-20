@@ -14,7 +14,8 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 
 interface Department {
@@ -27,9 +28,20 @@ interface Department {
 }
 
 export default function DepartmentsPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-slate-500">Loading Departments...</div>}>
+      <DepartmentsList />
+    </Suspense>
+  );
+}
+
+function DepartmentsList() {
+  const searchParams = useSearchParams();
+  const search = searchParams.get("search");
+
   const [departments, setDepartments] = useState<Department[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(search || "");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDepartment, setEditingDepartment] = useState<Department | null>(
     null,
@@ -38,6 +50,12 @@ export default function DepartmentsPage() {
   useEffect(() => {
     fetchDepartments();
   }, []);
+
+  useEffect(() => {
+    if (search !== null) {
+      setSearchTerm(search);
+    }
+  }, [search]);
 
   const fetchDepartments = async () => {
     try {

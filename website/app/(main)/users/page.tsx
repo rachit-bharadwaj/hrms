@@ -12,7 +12,9 @@ import {
   UserPlus,
   Users,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+
 
 interface User {
   id: string;
@@ -29,10 +31,21 @@ interface Role {
 }
 
 export default function UsersPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-slate-500">Loading Users...</div>}>
+      <UsersList />
+    </Suspense>
+  );
+}
+
+function UsersList() {
+  const searchParams = useSearchParams();
+  const search = searchParams.get("search");
+
   const [users, setUsers] = useState<User[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(search || "");
   const [canViewRoles, setCanViewRoles] = useState(true);
 
   // Modal states
@@ -44,6 +57,12 @@ export default function UsersPage() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (search !== null) {
+      setSearchTerm(search);
+    }
+  }, [search]);
 
   const fetchData = async () => {
     try {

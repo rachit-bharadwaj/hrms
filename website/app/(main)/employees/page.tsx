@@ -56,6 +56,12 @@ function EmployeesList() {
     fetchEmployees();
   }, []);
 
+  useEffect(() => {
+    if (search !== null) {
+      setSearchTerm(search);
+    }
+  }, [search]);
+
   const fetchEmployees = async () => {
     try {
       setIsLoading(true);

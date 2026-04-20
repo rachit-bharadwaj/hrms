@@ -4,6 +4,7 @@ import api from "@/lib/api";
 import { ChevronDown, LogOut, Search, Settings, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import GlobalSearch from "./GlobalSearch";
 
 export default function Header() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -62,19 +63,7 @@ export default function Header() {
 
       {/* Middle: Search Bar */}
       <div className="flex-1 flex justify-center px-8">
-        <div className="relative w-full max-w-xl group">
-          <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-            <Search
-              size={18}
-              className="text-slate-500 group-focus-within:text-primary transition-colors"
-            />
-          </div>
-          <input
-            type="text"
-            placeholder="Search by Candidates, Jobs, Companies"
-            className="w-full h-10 pl-11 pr-4 bg-slate-50 border border-transparent rounded-full text-sm focus:outline-none focus:bg-white focus:border-primary/30 focus:ring-4 focus:ring-primary/5 transition-all outline-none"
-          />
-        </div>
+        <GlobalSearch />
       </div>
 
       {/* Right: Actions & Profile */}
