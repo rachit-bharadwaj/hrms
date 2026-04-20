@@ -23,7 +23,10 @@ export default function CandidateStats() {
 
   // Use last 30 days or available data
   const chartData = data.slice(-30);
-  const maxVal = Math.max(...chartData.map(d => Math.max(d.present, d.absent)), 10);
+  const maxVal = Math.max(
+    ...chartData.map((d) => Math.max(d.present, d.absent)),
+    10,
+  );
 
   return (
     <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm flex flex-col gap-6">
@@ -45,9 +48,13 @@ export default function CandidateStats() {
 
       <div className="h-64 flex items-end gap-1.5 overflow-hidden">
         {loading ? (
-           <div className="w-full h-full flex items-center justify-center text-slate-400">Loading trend...</div>
+          <div className="w-full h-full flex items-center justify-center text-slate-500">
+            Loading trend...
+          </div>
         ) : chartData.length === 0 ? (
-          <div className="w-full h-full flex items-center justify-center text-slate-400">No attendance data found</div>
+          <div className="w-full h-full flex items-center justify-center text-slate-500">
+            No attendance data found
+          </div>
         ) : (
           chartData.map((item, i) => {
             const presentHeight = (item.present / maxVal) * 100;
@@ -74,7 +81,7 @@ export default function CandidateStats() {
                     />
                   )}
                 </div>
-                <div className="text-[10px] font-bold text-slate-400">{dayNum}</div>
+                <div className="text-sm font-bold text-slate-500">{dayNum}</div>
               </div>
             );
           })

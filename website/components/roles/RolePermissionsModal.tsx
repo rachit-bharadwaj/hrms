@@ -90,13 +90,13 @@ export default function RolePermissionsModal({
   return (
     <div className="fixed inset-0 z-120 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-300"
+        className="absolute inset-0 bg-primary/40 backdrop-blur-md animate-in fade-in duration-300"
         onClick={onClose}
       />
       <div className="relative w-full max-w-2xl bg-white rounded-[40px] shadow-2xl overflow-hidden animate-in zoom-in slide-in-from-bottom-8 duration-300">
         <div className="px-8 py-6 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/20">
+            <div className="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/20">
               <Shield size={24} />
             </div>
             <div>
@@ -111,7 +111,7 @@ export default function RolePermissionsModal({
           </div>
           <button
             onClick={onClose}
-            className="p-3 hover:bg-white rounded-2xl text-slate-400 hover:text-slate-600 transition-all border border-transparent hover:border-slate-100"
+            className="p-3 hover:bg-white rounded-xl text-slate-500 hover:text-slate-600 transition-all border border-transparent hover:border-slate-100"
           >
             <X size={20} />
           </button>
@@ -120,7 +120,7 @@ export default function RolePermissionsModal({
         <div className="p-8 flex flex-col gap-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
           <div className="relative">
             <Search
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
               size={18}
             />
             <input
@@ -128,7 +128,7 @@ export default function RolePermissionsModal({
               placeholder="Search permissions code..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-[20px] text-sm focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all placeholder:text-slate-400"
+              className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-[20px] text-sm focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all placeholder:text-slate-500"
             />
           </div>
 
@@ -137,7 +137,7 @@ export default function RolePermissionsModal({
               ? Array.from({ length: 6 }).map((_, i) => (
                   <div
                     key={i}
-                    className="h-16 bg-slate-50 rounded-2xl animate-pulse"
+                    className="h-16 bg-slate-50 rounded-xl animate-pulse"
                   />
                 ))
               : filteredPermissions.map((perm) => {
@@ -147,7 +147,7 @@ export default function RolePermissionsModal({
                       key={perm.id}
                       onClick={() => togglePermission(perm.id)}
                       disabled={isSaving !== null}
-                      className={`flex items-center justify-between p-4 rounded-2xl border transition-all text-left group ${
+                      className={`flex items-center justify-between p-4 rounded-xl border transition-all text-left group ${
                         isActive
                           ? "bg-blue-600 border-blue-600 shadow-lg shadow-blue-500/20 text-white"
                           : "bg-white border-slate-100 hover:border-blue-200 hover:bg-blue-50/30 text-slate-600"
@@ -160,7 +160,7 @@ export default function RolePermissionsModal({
                           {perm.code}
                         </span>
                         <span
-                          className={`text-[10px] font-medium opacity-80 line-clamp-1`}
+                          className={`text-sm font-medium opacity-80 line-clamp-1`}
                         >
                           {perm.description || "No description"}
                         </span>
@@ -181,7 +181,7 @@ export default function RolePermissionsModal({
         <div className="p-8 border-t border-slate-50 bg-slate-50/30 flex justify-end">
           <button
             onClick={onClose}
-            className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-sm font-bold shadow-xl shadow-slate-900/10 hover:shadow-slate-900/20 active:scale-95 transition-all"
+            className="px-8 py-4 bg-primary text-white rounded-xl text-sm font-bold shadow-xl shadow-slate-900/10 hover:shadow-slate-900/20 active:scale-95 transition-all"
           >
             Done Managing
           </button>

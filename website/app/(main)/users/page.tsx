@@ -96,7 +96,7 @@ export default function UsersPage() {
 
   const getUserRolesText = (user: User) => {
     if (!user.roles || user.roles.length === 0) return "Unknown";
-    return user.roles.map(r => r.name).join(", ");
+    return user.roles.map((r) => r.name).join(", ");
   };
 
   const formatDate = (dateStr: string) => {
@@ -120,15 +120,19 @@ export default function UsersPage() {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 font-bricolage-grotesque tracking-tight">User Management</h1>
-          <p className="text-slate-500 text-sm font-medium">Manage organization accounts, security levels, and login status.</p>
+          <h1 className="text-3xl font-bold text-slate-900 font-bricolage-grotesque tracking-tight">
+            User Management
+          </h1>
+          <p className="text-slate-500 text-sm font-medium">
+            Manage organization accounts, security levels, and login status.
+          </p>
         </div>
-        <button 
+        <button
           onClick={() => {
             setEditingUser(null);
             setIsModalOpen(true);
           }}
-          className="flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-6 py-3.5 rounded-2xl text-sm font-bold transition-all shadow-xl shadow-slate-900/10 active:scale-95 whitespace-nowrap"
+          className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/80 text-white px-6 py-3.5 rounded-xl text-sm font-bold transition-all shadow-xl shadow-slate-900/10 active:scale-95 whitespace-nowrap"
         >
           <UserPlus size={18} />
           <span>Add New Account</span>
@@ -138,17 +142,49 @@ export default function UsersPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: "Accounts", value: users.length, color: "text-slate-900", icon: Users },
-          { label: "Active", value: users.filter(u => u.isActive).length, color: "text-emerald-500", icon: Circle },
-          { label: "Admins", value: users.filter(u => getUserRolesText(u).includes("Admin")).length, color: "text-blue-500", icon: Shield },
-          { label: "Restricted", value: users.filter(u => !u.isActive).length, color: "text-red-500", icon: AlertCircle }
+          {
+            label: "Accounts",
+            value: users.length,
+            color: "text-slate-900",
+            icon: Users,
+          },
+          {
+            label: "Active",
+            value: users.filter((u) => u.isActive).length,
+            color: "text-emerald-500",
+            icon: Circle,
+          },
+          {
+            label: "Admins",
+            value: users.filter((u) => getUserRolesText(u).includes("Admin"))
+              .length,
+            color: "text-blue-500",
+            icon: Shield,
+          },
+          {
+            label: "Restricted",
+            value: users.filter((u) => !u.isActive).length,
+            color: "text-red-500",
+            icon: AlertCircle,
+          },
         ].map((stat, i) => (
-          <div key={i} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between group hover:shadow-lg hover:shadow-blue-500/5 transition-all">
+          <div
+            key={i}
+            className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between group hover:shadow-lg hover:shadow-blue-500/5 transition-all"
+          >
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
-              <p className={`text-3xl font-bold font-bricolage-grotesque ${stat.color}`}>{stat.value}</p>
+              <p className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-1">
+                {stat.label}
+              </p>
+              <p
+                className={`text-3xl font-bold font-bricolage-grotesque ${stat.color}`}
+              >
+                {stat.value}
+              </p>
             </div>
-            <div className={`p-3 rounded-2xl bg-slate-50 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors`}>
+            <div
+              className={`p-3 rounded-xl bg-slate-50 text-slate-500 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors`}
+            >
               <stat.icon size={20} />
             </div>
           </div>
@@ -159,13 +195,16 @@ export default function UsersPage() {
       <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
         <div className="p-6 border-b border-slate-50 flex flex-col md:flex-row items-center justify-between bg-slate-50/20 gap-4">
           <div className="relative w-full max-w-md">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-            <input 
-              type="text" 
+            <Search
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
+              size={18}
+            />
+            <input
+              type="text"
               placeholder="Search by email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all placeholder:text-slate-400 shadow-sm"
+              className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all placeholder:text-slate-500 shadow-sm"
             />
           </div>
         </div>
@@ -173,7 +212,7 @@ export default function UsersPage() {
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="text-left text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-50 bg-slate-50/10">
+              <tr className="text-left text-[11px] font-bold text-slate-500 uppercase tracking-widest border-b border-slate-50 bg-slate-50/10">
                 <th className="pl-10 pr-6 py-5">User Profile</th>
                 {canViewRoles && <th className="px-6 py-5">Assigned Role</th>}
                 <th className="px-6 py-5">Access Status</th>
@@ -206,10 +245,13 @@ export default function UsersPage() {
                 ))
               ) : filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={canViewRoles ? 5 : 4} className="px-10 py-24 text-center">
+                  <td
+                    colSpan={canViewRoles ? 5 : 4}
+                    className="px-10 py-24 text-center"
+                  >
                     <div className="flex flex-col items-center gap-3 opacity-40">
                       <Search size={48} className="text-slate-300" />
-                      <p className="text-sm font-bold text-slate-400 font-bricolage-grotesque">
+                      <p className="text-sm font-bold text-slate-500 font-bricolage-grotesque">
                         No user records available
                       </p>
                     </div>
@@ -226,7 +268,7 @@ export default function UsersPage() {
                         <span className="text-sm font-bold text-slate-900 mb-0.5">
                           {user.email}
                         </span>
-                        <span className="text-[10px] text-slate-400 font-medium font-sans">
+                        <span className="text-sm text-slate-500 font-medium font-sans">
                           Joined {formatDate(user.createdAt)}
                         </span>
                       </div>
@@ -241,7 +283,7 @@ export default function UsersPage() {
                     )}
                     <td className="px-6 py-5">
                       <div
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-bold uppercase tracking-wider ${
                           user.isActive
                             ? "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100"
                             : "bg-red-50 text-red-600 ring-1 ring-red-100"
@@ -265,7 +307,7 @@ export default function UsersPage() {
                             setEditingUser(user);
                             setIsModalOpen(true);
                           }}
-                          className="p-2.5 hover:bg-white rounded-xl border border-transparent hover:border-slate-200 text-slate-400 hover:text-blue-600 transition-all hover:shadow-sm"
+                          className="p-2.5 hover:bg-white rounded-xl border border-transparent hover:border-slate-200 text-slate-500 hover:text-blue-600 transition-all hover:shadow-sm"
                         >
                           <Edit2 size={16} />
                         </button>
@@ -274,7 +316,7 @@ export default function UsersPage() {
                             setUserToDelete(user);
                             setIsDeleteConfirmOpen(true);
                           }}
-                          className="p-2.5 hover:bg-white rounded-xl border border-transparent hover:border-red-100 text-slate-400 hover:text-red-600 transition-all hover:shadow-sm"
+                          className="p-2.5 hover:bg-white rounded-xl border border-transparent hover:border-red-100 text-slate-500 hover:text-red-600 transition-all hover:shadow-sm"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -302,7 +344,7 @@ export default function UsersPage() {
       {isDeleteConfirmOpen && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
           <div
-            className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300"
+            className="absolute inset-0 bg-primary/60 backdrop-blur-md animate-in fade-in duration-300"
             onClick={() => setIsDeleteConfirmOpen(false)}
           />
           <div className="relative w-full max-w-sm bg-white rounded-[32px] shadow-2xl p-8 flex flex-col items-center text-center animate-in zoom-in slide-in-from-top-4 duration-300">
@@ -322,13 +364,13 @@ export default function UsersPage() {
             <div className="flex flex-col w-full gap-3">
               <button
                 onClick={handleDelete}
-                className="w-full bg-red-600 hover:bg-red-700 text-white py-4 rounded-2xl text-sm font-bold transition-all shadow-xl shadow-red-500/20 active:scale-95"
+                className="w-full bg-red-600 hover:bg-red-700 text-white py-4 rounded-xl text-sm font-bold transition-all shadow-xl shadow-red-500/20 active:scale-95"
               >
                 Yes, Delete Account
               </button>
               <button
                 onClick={() => setIsDeleteConfirmOpen(false)}
-                className="w-full bg-slate-50 hover:bg-slate-100 text-slate-600 py-4 rounded-2xl text-sm font-bold transition-all"
+                className="w-full bg-slate-50 hover:bg-slate-100 text-slate-600 py-4 rounded-xl text-sm font-bold transition-all"
               >
                 No, Keep It
               </button>

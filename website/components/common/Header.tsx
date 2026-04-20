@@ -44,10 +44,11 @@ export default function Header() {
     // 1. Clear session from localStorage
     localStorage.removeItem("harbor_token");
     localStorage.removeItem("harbor_user");
-    
+
     // 2. Clear cookie
-    document.cookie = "harbor_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-    
+    document.cookie =
+      "harbor_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+
     // 3. Redirect to login
     router.push("/login");
   };
@@ -65,7 +66,7 @@ export default function Header() {
           <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
             <Search
               size={18}
-              className="text-slate-400 group-focus-within:text-primary transition-colors"
+              className="text-slate-500 group-focus-within:text-primary transition-colors"
             />
           </div>
           <input
@@ -91,20 +92,20 @@ export default function Header() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <User size={18} className="text-slate-400" />
+              <User size={18} className="text-slate-500" />
             )}
           </div>
           <ChevronDown
             size={14}
-            className={`text-slate-400 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""}`}
+            className={`text-slate-500 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""}`}
           />
         </div>
 
         {/* Dropdown Menu */}
         {isDropdownOpen && (
-          <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.08)] py-2 z-100 animate-in fade-in zoom-in duration-200 origin-top-right">
+          <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.08)] py-2 z-100 animate-in fade-in zoom-in duration-200 origin-top-right">
             <div className="px-4 py-2 border-b border-slate-50 mb-1">
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 User Account
               </p>
               <p className="text-sm font-medium text-slate-900 truncate">
@@ -112,7 +113,7 @@ export default function Header() {
               </p>
             </div>
 
-            <button 
+            <button
               onClick={() => {
                 router.push("/account");
                 setIsDropdownOpen(false);

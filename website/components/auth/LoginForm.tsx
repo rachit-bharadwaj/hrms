@@ -53,7 +53,7 @@ export default function LoginForm() {
       {error && (
         <div className="relative group animate-in fade-in slide-in-from-top-4 duration-500">
           <div className="absolute -inset-1 bg-linear-to-r from-red-500/20 to-orange-500/20 rounded-[20px] blur-md group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
-          <div className="relative flex items-center gap-3 bg-white/60 backdrop-blur-md border border-red-100 p-4 rounded-2xl shadow-sm">
+          <div className="relative flex items-center gap-3 bg-white/60 backdrop-blur-md border border-red-100 p-4 rounded-xl shadow-sm">
             <div className="shrink-0 w-8 h-8 rounded-full bg-red-50 flex items-center justify-center">
               <svg
                 width="16"
@@ -87,7 +87,7 @@ export default function LoginForm() {
           placeholder="name@company.com"
           required
           disabled={isLoading}
-          className="w-full px-5 py-3.5 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all bg-white/50 text-slate-900 placeholder:text-slate-400 disabled:opacity-50"
+          className="w-full px-5 py-3.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all bg-white/50 text-slate-900 placeholder:text-slate-500 disabled:opacity-50"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -110,7 +110,7 @@ export default function LoginForm() {
           placeholder="••••••••"
           required
           disabled={isLoading}
-          className="w-full px-5 py-3.5 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all bg-white/50 text-slate-900 placeholder:text-slate-400 disabled:opacity-50"
+          className="w-full px-5 py-3.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all bg-white/50 text-slate-900 placeholder:text-slate-500 disabled:opacity-50"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
@@ -119,7 +119,7 @@ export default function LoginForm() {
       <button
         type="submit"
         disabled={isLoading}
-        className="relative group w-full bg-blue-600 py-4 rounded-2xl transition-all shadow-xl shadow-blue-500/20 active:scale-[0.98] overflow-hidden disabled:opacity-70"
+        className="relative group w-full bg-blue-600 py-4 rounded-xl transition-all shadow-xl shadow-blue-500/20 active:scale-[0.98] overflow-hidden disabled:opacity-70"
       >
         <div className="absolute inset-0 bg-linear-to-r from-blue-700 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
         <span className="relative z-10 text-white font-bold tracking-wide flex items-center justify-center gap-3">

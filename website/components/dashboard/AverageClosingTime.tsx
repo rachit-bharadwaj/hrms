@@ -34,9 +34,11 @@ export default function AverageClosingTime() {
       </p>
 
       {loading ? (
-        <div className="text-slate-400 py-10 text-center">Loading tasks...</div>
+        <div className="text-slate-500 py-10 text-center">Loading tasks...</div>
       ) : tasks.length === 0 ? (
-        <div className="text-slate-400 py-10 text-center">No upcoming tasks</div>
+        <div className="text-slate-500 py-10 text-center">
+          No upcoming tasks
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-1 gap-y-4">
           {tasks.map((task) => (
@@ -53,21 +55,25 @@ export default function AverageClosingTime() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <span className="text-xs font-bold text-slate-400">
+                    <span className="text-xs font-bold text-slate-500">
                       {task.employeeName?.charAt(0) || "T"}
                     </span>
                   )}
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-slate-900 text-sm font-medium leading-tight">{task.title}</span>
-                  <span className="text-slate-400 text-xs">{task.employeeName}</span>
+                  <span className="text-slate-900 text-sm font-medium leading-tight">
+                    {task.title}
+                  </span>
+                  <span className="text-slate-500 text-xs">
+                    {task.employeeName}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-col items-center justify-center min-w-[60px] bg-blue-50 group-hover:bg-blue-100 px-2 py-1 rounded-lg transition-colors">
                 <span className="text-blue-600 tracking-tighter font-bold">
                   {getDaysLeft(task.dueDate)}
                 </span>
-                <span className="text-[10px] font-bold text-blue-400 uppercase">
+                <span className="text-sm font-bold text-blue-400 uppercase">
                   days left
                 </span>
               </div>

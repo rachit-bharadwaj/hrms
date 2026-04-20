@@ -190,11 +190,11 @@ export default function AccountPage() {
 
             <div className="mt-8 pt-8 border-t border-slate-50 w-full flex flex-col gap-4 text-left">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-slate-50 rounded-xl text-slate-400">
+                <div className="p-2 bg-slate-50 rounded-xl text-slate-500">
                   <Mail size={16} />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                  <span className="text-sm font-bold text-slate-500 uppercase tracking-widest">
                     Email Address
                   </span>
                   <span className="text-sm font-medium text-slate-900 truncate">
@@ -203,11 +203,11 @@ export default function AccountPage() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-slate-50 rounded-xl text-slate-400">
+                <div className="p-2 bg-slate-50 rounded-xl text-slate-500">
                   <KeyRound size={16} />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                  <span className="text-sm font-bold text-slate-500 uppercase tracking-widest">
                     Role Level
                   </span>
                   <span className="text-sm font-bold text-slate-900">
@@ -224,7 +224,7 @@ export default function AccountPage() {
           {/* Profile Section */}
           <section className="bg-white rounded-[40px] border border-slate-100 shadow-sm p-8 md:p-10">
             <div className="flex items-center gap-4 mb-8">
-              <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400">
+              <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500">
                 <User size={24} />
               </div>
               <div>
@@ -240,7 +240,7 @@ export default function AccountPage() {
             <form onSubmit={handleUpdateProfile} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest px-1">
                     Display Name
                   </label>
                   <input
@@ -254,7 +254,7 @@ export default function AccountPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest px-1">
                     Work Email
                   </label>
                   <input
@@ -267,7 +267,7 @@ export default function AccountPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest px-1">
                     Date of Birth
                   </label>
                   <input
@@ -280,7 +280,7 @@ export default function AccountPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest px-1">
                     Phone Number
                   </label>
                   <input
@@ -293,14 +293,17 @@ export default function AccountPage() {
                   />
                 </div>
                 <div className="md:col-span-2 space-y-2">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest px-1">
                     Current Address
                   </label>
                   <textarea
                     rows={2}
                     value={profileForm.address}
                     onChange={(e) =>
-                      setProfileForm({ ...profileForm, address: e.target.value })
+                      setProfileForm({
+                        ...profileForm,
+                        address: e.target.value,
+                      })
                     }
                     className="w-full px-5 py-4 bg-slate-50/50 border border-slate-100 rounded-3xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all resize-none"
                   />
@@ -310,7 +313,7 @@ export default function AccountPage() {
               {/* Status Message */}
               {status?.section === "profile" && (
                 <div
-                  className={`flex items-center gap-3 p-4 rounded-2xl border ${status.type === "success" ? "bg-emerald-50 border-emerald-100 text-emerald-600" : "bg-red-50 border-red-100 text-red-600"} animate-in slide-in-from-top-2`}
+                  className={`flex items-center gap-3 p-4 rounded-xl border ${status.type === "success" ? "bg-emerald-50 border-emerald-100 text-emerald-600" : "bg-red-50 border-red-100 text-red-600"} animate-in slide-in-from-top-2`}
                 >
                   {status.type === "success" ? (
                     <CheckCircle2 size={18} />
@@ -325,7 +328,7 @@ export default function AccountPage() {
                 <button
                   type="submit"
                   disabled={isUpdatingProfile}
-                  className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 disabled:opacity-70 text-white px-8 py-4 rounded-2xl text-sm font-bold transition-all shadow-xl shadow-slate-900/10 active:scale-95"
+                  className="flex items-center gap-2 bg-primary hover:bg-primary/80 disabled:opacity-70 text-white px-8 py-4 rounded-xl text-sm font-bold transition-all shadow-xl shadow-slate-900/10 active:scale-95"
                 >
                   {isUpdatingProfile ? (
                     <Loader2 className="animate-spin" size={18} />
@@ -343,7 +346,7 @@ export default function AccountPage() {
           {/* Security Section */}
           <section className="bg-white rounded-[40px] border border-slate-100 shadow-sm p-8 md:p-10">
             <div className="flex items-center gap-4 mb-8">
-              <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-500">
+              <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-amber-500">
                 <Lock size={24} />
               </div>
               <div>
@@ -359,7 +362,7 @@ export default function AccountPage() {
 
             <form onSubmit={handleChangePassword} className="space-y-6">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest px-1">
                   Current Password
                 </label>
                 <div className="relative">
@@ -378,7 +381,7 @@ export default function AccountPage() {
                   <button
                     type="button"
                     onClick={() => setShowCurrentPass(!showCurrentPass)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-slate-400 hover:text-slate-600 transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-slate-500 hover:text-slate-600 transition-colors"
                   >
                     {showCurrentPass ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -387,7 +390,7 @@ export default function AccountPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest px-1">
                     New Password
                   </label>
                   <div className="relative">
@@ -406,7 +409,7 @@ export default function AccountPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest px-1">
                     Confirm Password
                   </label>
                   <input
@@ -427,7 +430,7 @@ export default function AccountPage() {
               {/* Status Message */}
               {status?.section === "password" && (
                 <div
-                  className={`flex items-center gap-3 p-4 rounded-2xl border ${status.type === "success" ? "bg-emerald-50 border-emerald-100 text-emerald-600" : "bg-red-50 border-red-100 text-red-600"} animate-in slide-in-from-top-2`}
+                  className={`flex items-center gap-3 p-4 rounded-xl border ${status.type === "success" ? "bg-emerald-50 border-emerald-100 text-emerald-600" : "bg-red-50 border-red-100 text-red-600"} animate-in slide-in-from-top-2`}
                 >
                   {status.type === "success" ? (
                     <CheckCircle2 size={18} />
@@ -442,7 +445,7 @@ export default function AccountPage() {
                 <button
                   type="submit"
                   disabled={isChangingPassword}
-                  className="bg-amber-500 hover:bg-amber-600 disabled:opacity-70 text-white px-8 py-4 rounded-2xl text-sm font-bold transition-all shadow-xl shadow-amber-500/20 active:scale-95 flex items-center justify-center gap-2"
+                  className="bg-amber-500 hover:bg-amber-600 disabled:opacity-70 text-white px-8 py-4 rounded-xl text-sm font-bold transition-all shadow-xl shadow-amber-500/20 active:scale-95 flex items-center justify-center gap-2"
                 >
                   {isChangingPassword ? (
                     <Loader2 className="animate-spin" size={18} />

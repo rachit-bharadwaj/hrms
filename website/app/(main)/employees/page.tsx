@@ -182,7 +182,7 @@ function EmployeesList() {
                 {stat.value}
               </p>
             </div>
-            <div className="p-3 rounded-lg bg-slate-50 text-slate-400 group-hover:bg-slate-100 transition-colors">
+            <div className="p-3 rounded-lg bg-slate-50 text-slate-500 group-hover:bg-slate-100 transition-colors">
               <stat.icon size={20} />
             </div>
           </div>
@@ -260,14 +260,14 @@ function EmployeesList() {
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <User size={18} className="text-slate-400" />
+                            <User size={18} className="text-slate-500" />
                           )}
                         </div>
                         <div className="flex flex-col">
                           <span className="text-slate-900">
                             {emp.firstName} {emp.lastName}
                           </span>
-                          <span className="text-sm text-slate-400">
+                          <span className="text-sm text-slate-500">
                             {emp.employeeCode}
                           </span>
                         </div>
@@ -278,7 +278,7 @@ function EmployeesList() {
                         <span className="text-slate-700">
                           {emp.designation}
                         </span>
-                        <div className="flex items-center gap-2 text-sm text-slate-400">
+                        <div className="flex items-center gap-2 text-sm text-slate-500">
                           <Building2 size={10} />
                           {emp.departmentName}
                         </div>
@@ -302,7 +302,7 @@ function EmployeesList() {
                       <div className="flex items-center justify-end gap-2">
                         <a
                           href={`mailto:${emp.emailOfficial}`}
-                          className="p-2 hover:bg-white rounded-lg text-slate-400 hover:text-blue-500 border border-transparent hover:border-slate-100 transition-all"
+                          className="p-2 hover:bg-white rounded-lg text-slate-500 hover:text-blue-500 border border-transparent hover:border-slate-100 transition-all"
                         >
                           <Mail size={16} />
                         </a>
@@ -311,13 +311,13 @@ function EmployeesList() {
                             setEditingEmployee(emp);
                             setIsModalOpen(true);
                           }}
-                          className="p-2 hover:bg-white rounded-lg text-slate-400 hover:text-blue-600 border border-transparent hover:border-slate-100 transition-all"
+                          className="p-2 hover:bg-white rounded-lg text-slate-500 hover:text-blue-600 border border-transparent hover:border-slate-100 transition-all"
                         >
                           <Edit2 size={16} />
                         </button>
                         <button
                           onClick={() => handleDelete(emp.id)}
-                          className="p-2 hover:bg-white rounded-lg text-slate-400 hover:text-red-500 border border-transparent hover:border-slate-100 transition-all"
+                          className="p-2 hover:bg-white rounded-lg text-slate-500 hover:text-red-500 border border-transparent hover:border-slate-100 transition-all"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -346,7 +346,7 @@ function EmployeesList() {
 export default function EmployeesPage() {
   return (
     <Suspense
-      fallback={<div className="p-8 text-slate-400">Loading Directory...</div>}
+      fallback={<div className="p-8 text-slate-500">Loading Directory...</div>}
     >
       <EmployeesList />
     </Suspense>

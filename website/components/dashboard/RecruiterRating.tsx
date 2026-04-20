@@ -30,9 +30,13 @@ export default function RecruiterRating() {
 
       <div className="overflow-x-auto">
         {loading ? (
-          <div className="text-slate-400 py-10 text-center">Loading requests...</div>
+          <div className="text-slate-500 py-10 text-center">
+            Loading requests...
+          </div>
         ) : leaves.length === 0 ? (
-          <div className="text-slate-400 py-10 text-center">No pending requests</div>
+          <div className="text-slate-500 py-10 text-center">
+            No pending requests
+          </div>
         ) : (
           <table className="w-full">
             <thead>
@@ -59,33 +63,32 @@ export default function RecruiterRating() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <span className="text-xs font-bold text-slate-400">
+                          <span className="text-xs font-bold text-slate-500">
                             {leave.employeeName.charAt(0)}
                           </span>
                         )}
                       </div>
-                      <span className="text-slate-900">{leave.employeeName}</span>
+                      <span className="text-slate-900">
+                        {leave.employeeName}
+                      </span>
                     </div>
                   </td>
                   <td className="py-4">
-                    <span className="text-slate-700">
-                      {leave.leaveType}
-                    </span>
+                    <span className="text-slate-700">{leave.leaveType}</span>
                   </td>
                   <td className="py-4">
                     <div className="flex items-center gap-2 text-slate-600 text-sm">
-                      <Clock size={14} className="text-slate-400" />
+                      <Clock size={14} className="text-slate-500" />
                       <span>
-                        {new Date(leave.startDate).toLocaleDateString()} - {new Date(leave.endDate).toLocaleDateString()}
+                        {new Date(leave.startDate).toLocaleDateString()} -{" "}
+                        {new Date(leave.endDate).toLocaleDateString()}
                       </span>
                     </div>
                   </td>
                   <td className="py-4">
                     <div className="flex items-center gap-4 text-slate-700">
-                      <span className="font-medium">
-                        {leave.days} days
-                      </span>
-                      <div className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 text-[10px] font-bold uppercase">
+                      <span className="font-medium">{leave.days} days</span>
+                      <div className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 text-sm font-bold uppercase">
                         {leave.status}
                       </div>
                     </div>

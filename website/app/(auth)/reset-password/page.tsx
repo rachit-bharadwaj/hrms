@@ -2,7 +2,13 @@
 
 import api from "@/lib/api";
 import { Logo } from "@/partials/common";
-import { CheckCircle2, KeyRound, Loader2, Lock, ShieldCheck } from "lucide-react";
+import {
+  CheckCircle2,
+  KeyRound,
+  Loader2,
+  Lock,
+  ShieldCheck,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -14,7 +20,10 @@ export default function ResetPasswordPage() {
     confirmPassword: "",
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [status, setStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [status, setStatus] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +42,10 @@ export default function ResetPasswordPage() {
       });
 
       if (res.data.status === "success") {
-        setStatus({ type: "success", message: "Password updated! Redirecting to dashboard..." });
+        setStatus({
+          type: "success",
+          message: "Password updated! Redirecting to dashboard...",
+        });
         setTimeout(() => {
           router.push("/");
         }, 2000);
@@ -62,20 +74,21 @@ export default function ResetPasswordPage() {
 
         <div className="bg-white/80 backdrop-blur-xl p-8 md:p-10 rounded-[40px] border border-white shadow-[0_20px_50px_rgba(0,0,0,0.05)] flex flex-col gap-8">
           <div className="flex flex-col gap-2 text-center">
-            <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-white mx-auto mb-4 shadow-xl shadow-blue-500/20">
+            <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center text-white mx-auto mb-4 shadow-xl shadow-blue-500/20">
               <ShieldCheck size={32} />
             </div>
             <h1 className="text-2xl font-bold text-slate-900 font-bricolage-grotesque">
               Secure Your Account
             </h1>
             <p className="text-slate-500 text-sm font-medium px-4">
-              Your administrator requires you to change your password on your first login.
+              Your administrator requires you to change your password on your
+              first login.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] font-bold text-slate-400 ml-1 uppercase tracking-widest">
+              <label className="text-[11px] font-bold text-slate-500 ml-1 uppercase tracking-widest">
                 Temporary Password
               </label>
               <div className="relative">
@@ -83,17 +96,22 @@ export default function ResetPasswordPage() {
                   type="password"
                   required
                   placeholder="The password provided to you"
-                  className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all bg-white/50 text-slate-900 placeholder:text-slate-300"
+                  className="w-full pl-12 pr-5 py-4 rounded-xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all bg-white/50 text-slate-900 placeholder:text-slate-300"
                   value={form.currentPassword}
-                  onChange={(e) => setForm({ ...form, currentPassword: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, currentPassword: e.target.value })
+                  }
                 />
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                <Lock
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"
+                  size={18}
+                />
               </div>
             </div>
 
             <div className="grid grid-cols-1 gap-5">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] font-bold text-slate-400 ml-1 uppercase tracking-widest">
+                <label className="text-[11px] font-bold text-slate-500 ml-1 uppercase tracking-widest">
                   New Secure Password
                 </label>
                 <div className="relative">
@@ -101,16 +119,21 @@ export default function ResetPasswordPage() {
                     type="password"
                     required
                     placeholder="Min. 8 characters"
-                    className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all bg-white/50 text-slate-900 placeholder:text-slate-300"
+                    className="w-full pl-12 pr-5 py-4 rounded-xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all bg-white/50 text-slate-900 placeholder:text-slate-300"
                     value={form.newPassword}
-                    onChange={(e) => setForm({ ...form, newPassword: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, newPassword: e.target.value })
+                    }
                   />
-                  <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                  <KeyRound
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"
+                    size={18}
+                  />
                 </div>
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] font-bold text-slate-400 ml-1 uppercase tracking-widest">
+                <label className="text-[11px] font-bold text-slate-500 ml-1 uppercase tracking-widest">
                   Confirm Password
                 </label>
                 <div className="relative">
@@ -118,30 +141,45 @@ export default function ResetPasswordPage() {
                     type="password"
                     required
                     placeholder="Repeat new password"
-                    className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all bg-white/50 text-slate-900 placeholder:text-slate-300"
+                    className="w-full pl-12 pr-5 py-4 rounded-xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all bg-white/50 text-slate-900 placeholder:text-slate-300"
                     value={form.confirmPassword}
-                    onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, confirmPassword: e.target.value })
+                    }
                   />
-                  <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                  <KeyRound
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"
+                    size={18}
+                  />
                 </div>
               </div>
             </div>
 
             {status && (
-              <div className={`p-4 rounded-2xl border flex items-start gap-3 animate-in slide-in-from-top-2 ${
-                status.type === "success" ? "bg-emerald-50 border-emerald-100 text-emerald-600" : "bg-red-50 border-red-100 text-red-600"
-              }`}>
-                {status.type === "success" ? <CheckCircle2 size={18} className="shrink-0" /> : null}
-                <p className="text-xs font-bold leading-relaxed">{status.message}</p>
+              <div
+                className={`p-4 rounded-xl border flex items-start gap-3 animate-in slide-in-from-top-2 ${
+                  status.type === "success"
+                    ? "bg-emerald-50 border-emerald-100 text-emerald-600"
+                    : "bg-red-50 border-red-100 text-red-600"
+                }`}
+              >
+                {status.type === "success" ? (
+                  <CheckCircle2 size={18} className="shrink-0" />
+                ) : null}
+                <p className="text-xs font-bold leading-relaxed">
+                  {status.message}
+                </p>
               </div>
             )}
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-slate-900 hover:bg-slate-800 text-white py-4 rounded-2xl font-bold transition-all shadow-xl shadow-slate-900/10 active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-70 mt-2"
+              className="w-full bg-primary hover:bg-primary/80 text-white py-4 rounded-xl font-bold transition-all shadow-xl shadow-slate-900/10 active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-70 mt-2"
             >
-              {isLoading ? <Loader2 className="animate-spin" size={18} /> : null}
+              {isLoading ? (
+                <Loader2 className="animate-spin" size={18} />
+              ) : null}
               {isLoading ? "Securing Account..." : "Set New Password & Login"}
             </button>
           </form>

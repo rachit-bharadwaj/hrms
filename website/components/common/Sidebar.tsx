@@ -46,7 +46,7 @@ const SidebarItem = ({
       } ${
         isActive
           ? "bg-white shadow-[0_4px_12px_rgba(0,0,0,0.08)] text-primary border border-slate-100/50"
-          : "text-slate-400 hover:text-slate-600 hover:bg-slate-100/80"
+          : "text-slate-500 hover:text-slate-600 hover:bg-slate-100/80"
       }`}
     >
       <div className="relative shrink-0">
@@ -72,7 +72,7 @@ const SidebarItem = ({
 
       {/* Tooltip (only when collapsed) */}
       {!isExpanded && (
-        <div className="absolute left-[calc(100%+16px)] px-3 py-1.5 rounded-lg bg-slate-900 text-white text-[11px] font-medium opacity-0 group-hover:opacity-100 translate-x-[-10px] group-hover:translate-x-0 transition-all duration-200 whitespace-nowrap pointer-events-none z-100 shadow-xl">
+        <div className="absolute left-[calc(100%+16px)] px-3 py-1.5 rounded-lg bg-primary text-white text-[11px] font-medium opacity-0 group-hover:opacity-100 translate-x-[-10px] group-hover:translate-x-0 transition-all duration-200 whitespace-nowrap pointer-events-none z-100 shadow-xl">
           {label}
           <div className="absolute right-full top-1/2 -translate-y-1/2 border-[6px] border-transparent border-r-slate-900" />
         </div>
@@ -106,24 +106,81 @@ export default function Sidebar() {
   }, [isExpanded]);
 
   const navItems = [
-    { icon: BarChart3, label: "Dashboard", href: "/", permission: "dashboard.view" },
-    { icon: Briefcase, label: "Employees", href: "/employees", permission: "employees.view" },
-    { icon: Building2, label: "Departments", href: "/departments", permission: "departments.view" },
-    { icon: CheckCircle2, label: "Attendance", href: "/attendance", permission: "attendance.view" },
-    { icon: Calendar, label: "Leaves", href: "/leaves", permission: ["leaves.view_own", "leaves.view_all"] },
-    { icon: CalendarDays, label: "Holidays", href: "/calendar", permission: "holidays.view" },
-    { icon: ClipboardCheck, label: "Approvals", href: "/leaves/requests", permission: "leaves.approve" },
-    { icon: Banknote, label: "Payroll", href: "/payroll", permission: ["payroll.view_own", "payroll.view_all"] },
-    { icon: ListTodo, label: "Tasks", href: "/tasks", permission: ["tasks.view_own", "tasks.view_all"] },
+    {
+      icon: BarChart3,
+      label: "Dashboard",
+      href: "/",
+      permission: "dashboard.view",
+    },
+    {
+      icon: Briefcase,
+      label: "Employees",
+      href: "/employees",
+      permission: "employees.view",
+    },
+    {
+      icon: Building2,
+      label: "Departments",
+      href: "/departments",
+      permission: "departments.view",
+    },
+    {
+      icon: CheckCircle2,
+      label: "Attendance",
+      href: "/attendance",
+      permission: "attendance.view",
+    },
+    {
+      icon: Calendar,
+      label: "Leaves",
+      href: "/leaves",
+      permission: ["leaves.view_own", "leaves.view_all"],
+    },
+    {
+      icon: CalendarDays,
+      label: "Holidays",
+      href: "/calendar",
+      permission: "holidays.view",
+    },
+    {
+      icon: ClipboardCheck,
+      label: "Approvals",
+      href: "/leaves/requests",
+      permission: "leaves.approve",
+    },
+    {
+      icon: Banknote,
+      label: "Payroll",
+      href: "/payroll",
+      permission: ["payroll.view_own", "payroll.view_all"],
+    },
+    {
+      icon: ListTodo,
+      label: "Tasks",
+      href: "/tasks",
+      permission: ["tasks.view_own", "tasks.view_all"],
+    },
     { icon: User, label: "Users", href: "/users", permission: "users.manage" },
-    { icon: Shield, label: "Roles", href: "/roles", permission: "roles.manage" },
-    { icon: LockKeyhole, label: "Permissions", href: "/permissions", permission: "roles.manage" },
+    {
+      icon: Shield,
+      label: "Roles",
+      href: "/roles",
+      permission: "roles.manage",
+    },
+    {
+      icon: LockKeyhole,
+      label: "Permissions",
+      href: "/permissions",
+      permission: "roles.manage",
+    },
   ];
 
-  const filteredNavItems = navItems.filter(item => {
+  const filteredNavItems = navItems.filter((item) => {
     if (!item.permission) return true;
-    const required = Array.isArray(item.permission) ? item.permission : [item.permission];
-    return required.some(p => permissions.includes(p));
+    const required = Array.isArray(item.permission)
+      ? item.permission
+      : [item.permission];
+    return required.some((p) => permissions.includes(p));
   });
 
   const bottomItems = [

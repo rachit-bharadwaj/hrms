@@ -39,7 +39,10 @@ export default function UserModal({
       setFormData({
         email: initialData.email || "",
         password: "", // Don't pre-fill password for editing
-        roleId: initialData.roles && initialData.roles.length > 0 ? initialData.roles[0].id : "",
+        roleId:
+          initialData.roles && initialData.roles.length > 0
+            ? initialData.roles[0].id
+            : "",
         isActive: initialData.isActive ?? true,
       });
     } else {
@@ -78,7 +81,7 @@ export default function UserModal({
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300"
+        className="absolute inset-0 bg-primary/40 backdrop-blur-sm animate-in fade-in duration-300"
         onClick={onClose}
       />
 
@@ -97,7 +100,7 @@ export default function UserModal({
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-white rounded-xl text-slate-400 hover:text-slate-600 transition-all border border-transparent hover:border-slate-100"
+            className="p-2 hover:bg-white rounded-xl text-slate-500 hover:text-slate-600 transition-all border border-transparent hover:border-slate-100"
           >
             <X size={20} />
           </button>
@@ -112,12 +115,12 @@ export default function UserModal({
           )}
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">
               Email Address
             </label>
             <div className="relative">
               <Mail
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"
                 size={18}
               />
               <input
@@ -127,19 +130,19 @@ export default function UserModal({
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
-                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
                 placeholder="example@company.com"
               />
             </div>
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">
               {initialData ? "Password (Leave blank to keep same)" : "Password"}
             </label>
             <div className="relative">
               <Lock
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"
                 size={18}
               />
               <input
@@ -149,7 +152,7 @@ export default function UserModal({
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })
                 }
-                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
                 placeholder="••••••••"
               />
             </div>
@@ -157,12 +160,12 @@ export default function UserModal({
 
           {showRoles && (
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">
                 User Role
               </label>
               <div className="relative">
                 <Shield
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"
                   size={18}
                 />
                 <select
@@ -171,7 +174,7 @@ export default function UserModal({
                   onChange={(e) =>
                     setFormData({ ...formData, roleId: e.target.value })
                   }
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all appearance-none"
+                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all appearance-none"
                 >
                   <option value="">Select a role</option>
                   {roles.map((role) => (
@@ -184,7 +187,7 @@ export default function UserModal({
             </div>
           )}
 
-          <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100 mt-2">
+          <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100 mt-2">
             <input
               type="checkbox"
               id="isActive"
@@ -199,7 +202,7 @@ export default function UserModal({
               className="text-sm font-bold text-slate-700 cursor-pointer"
             >
               Active Account
-              <span className="block text-[10px] text-slate-400 font-medium font-sans">
+              <span className="block text-sm text-slate-500 font-medium font-sans">
                 Toggle user access to the system
               </span>
             </label>
@@ -209,14 +212,14 @@ export default function UserModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-3 rounded-2xl text-sm font-bold text-slate-500 hover:bg-slate-50 transition-all"
+              className="flex-1 px-4 py-3 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-50 transition-all"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-[2] bg-blue-600 hover:bg-blue-700 disabled:opacity-70 text-white px-4 py-3 rounded-2xl text-sm font-bold transition-all shadow-lg shadow-blue-500/10 flex items-center justify-center gap-2"
+              className="flex-[2] bg-blue-600 hover:bg-blue-700 disabled:opacity-70 text-white px-4 py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-blue-500/10 flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <Loader2 className="animate-spin" size={18} />
