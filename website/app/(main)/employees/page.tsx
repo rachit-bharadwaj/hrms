@@ -1,5 +1,6 @@
 "use client";
 
+import EmployeeModal from "@/components/employees/EmployeeModal";
 import api from "@/lib/api";
 import {
   Briefcase,
@@ -13,9 +14,8 @@ import {
   User,
   Users,
 } from "lucide-react";
-import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import EmployeeModal from "@/components/employees/EmployeeModal";
+import { Suspense, useEffect, useState } from "react";
 
 interface Employee {
   id: string;
@@ -45,7 +45,7 @@ interface Employee {
 function EmployeesList() {
   const searchParams = useSearchParams();
   const search = searchParams.get("search");
-  
+
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState(search || "");
@@ -129,7 +129,7 @@ function EmployeesList() {
             setEditingEmployee(null);
             setIsModalOpen(true);
           }}
-          className="flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-6 py-3.5 rounded-2xl text-sm font-bold transition-all shadow-xl shadow-slate-900/10 active:scale-95 whitespace-nowrap"
+          className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/80 text-white px-6 py-3.5 rounded-xl transition-all shadow-xl shadow-slate-900/10 active:scale-95 whitespace-nowrap"
         >
           <Plus size={18} />
           <span>Add Employee</span>
@@ -138,33 +138,70 @@ function EmployeesList() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: "Total Staff", value: employees.length, icon: Users, color: "text-slate-900" },
-          { label: "Active", value: employees.filter(e => e.status.toLowerCase() === 'active').length, icon: Circle, color: "text-emerald-500" },
-          { label: "Departments", value: new Set(employees.map(e => e.departmentName)).size, icon: Building2, color: "text-blue-500" },
-          { label: "New Joinees", value: employees.filter(e => new Date(e.joiningDate) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)).length, icon: Briefcase, color: "text-purple-500" }
+          {
+            label: "Total Staff",
+            value: employees.length,
+            icon: Users,
+            color: "text-slate-900",
+          },
+          {
+            label: "Active",
+            value: employees.filter((e) => e.status.toLowerCase() === "active")
+              .length,
+            icon: Circle,
+            color: "text-emerald-500",
+          },
+          {
+            label: "Departments",
+            value: new Set(employees.map((e) => e.departmentName)).size,
+            icon: Building2,
+            color: "text-blue-500",
+          },
+          {
+            label: "New Joinees",
+            value: employees.filter(
+              (e) =>
+                new Date(e.joiningDate) >
+                new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+            ).length,
+            icon: Briefcase,
+            color: "text-purple-500",
+          },
         ].map((stat, i) => (
-          <div key={i} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between group hover:shadow-lg transition-all">
+          <div
+            key={i}
+            className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between group hover:shadow-lg transition-all"
+          >
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
-              <p className={`text-3xl font-bold font-bricolage-grotesque ${stat.color}`}>{stat.value}</p>
+              <p className="text-slate-500 tracking-widest mb-1">
+                {stat.label}
+              </p>
+              <p
+                className={`text-3xl font-bold font-bricolage-grotesque ${stat.color}`}
+              >
+                {stat.value}
+              </p>
             </div>
-            <div className="p-3 rounded-2xl bg-slate-50 text-slate-400 group-hover:bg-slate-100 transition-colors">
+            <div className="p-3 rounded-lg bg-slate-50 text-slate-400 group-hover:bg-slate-100 transition-colors">
               <stat.icon size={20} />
             </div>
           </div>
         ))}
       </div>
 
-      <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+      <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
         <div className="p-6 border-b border-slate-50 flex flex-col md:flex-row items-center justify-between bg-slate-50/20 gap-4">
           <div className="relative w-full max-w-md">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <Search
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
+              size={18}
+            />
             <input
               type="text"
               placeholder="Search employees..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all shadow-sm"
+              className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all shadow-sm"
             />
           </div>
         </div>
@@ -172,7 +209,7 @@ function EmployeesList() {
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="text-left text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-50 bg-slate-50/10">
+              <tr className="text-left text-slate-500 font-normal border-b border-slate-50 bg-slate-50/10">
                 <th className="pl-10 pr-6 py-5">Employee Info</th>
                 <th className="px-6 py-5">Job Details</th>
                 <th className="px-6 py-5">Status</th>
@@ -184,57 +221,89 @@ function EmployeesList() {
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i} className="animate-pulse">
-                    <td className="pl-10 pr-6 py-5"><div className="h-10 w-40 bg-slate-100 rounded-lg" /></td>
-                    <td className="px-6 py-5"><div className="h-5 w-32 bg-slate-100 rounded-lg" /></td>
-                    <td className="px-6 py-5"><div className="h-5 w-20 bg-slate-100 rounded-lg" /></td>
-                    <td className="px-6 py-5"><div className="h-5 w-24 bg-slate-100 rounded-lg" /></td>
-                    <td className="pl-6 pr-10 py-5 text-right"><div className="h-8 w-16 bg-slate-100 rounded-lg ml-auto" /></td>
+                    <td className="pl-10 pr-6 py-5">
+                      <div className="h-10 w-40 bg-slate-100 rounded-lg" />
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="h-5 w-32 bg-slate-100 rounded-lg" />
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="h-5 w-20 bg-slate-100 rounded-lg" />
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="h-5 w-24 bg-slate-100 rounded-lg" />
+                    </td>
+                    <td className="pl-6 pr-10 py-5 text-right">
+                      <div className="h-8 w-16 bg-slate-100 rounded-lg ml-auto" />
+                    </td>
                   </tr>
                 ))
               ) : filteredEmployees.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-10 py-24 text-center text-slate-400 font-medium">
+                  <td colSpan={5} className="px-10 py-24 text-center">
                     No employees found matching your criteria.
                   </td>
                 </tr>
               ) : (
                 filteredEmployees.map((emp) => (
-                  <tr key={emp.id} className="group hover:bg-slate-50/50 transition-colors">
+                  <tr
+                    key={emp.id}
+                    className="group hover:bg-slate-50/50 transition-colors"
+                  >
                     <td className="pl-10 pr-6 py-5">
                       <div className="flex items-center gap-4">
                         <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden border-2 border-white shadow-sm ring-1 ring-slate-100">
                           {emp.photoUrl ? (
-                            <img src={emp.photoUrl} alt="" className="w-full h-full object-cover" />
+                            <img
+                              src={emp.photoUrl}
+                              alt=""
+                              className="w-full h-full object-cover"
+                            />
                           ) : (
                             <User size={18} className="text-slate-400" />
                           )}
                         </div>
                         <div className="flex flex-col">
-                          <span className="text-sm font-bold text-slate-900">{emp.firstName} {emp.lastName}</span>
-                          <span className="text-[10px] text-slate-400 font-medium">{emp.employeeCode}</span>
+                          <span className="text-slate-900">
+                            {emp.firstName} {emp.lastName}
+                          </span>
+                          <span className="text-sm text-slate-400">
+                            {emp.employeeCode}
+                          </span>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-5">
                       <div className="flex flex-col gap-1">
-                        <span className="text-xs font-bold text-slate-700">{emp.designation}</span>
-                        <div className="flex items-center gap-2 text-[10px] text-slate-400 font-medium">
+                        <span className="text-slate-700">
+                          {emp.designation}
+                        </span>
+                        <div className="flex items-center gap-2 text-sm text-slate-400">
                           <Building2 size={10} />
                           {emp.departmentName}
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-5">
-                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ring-1 ${getStatusColor(emp.status)}`}>
+                      <span
+                        className={`inline-flex items-center px-5 py-1 rounded-full text-sm tracking-wider ring-1 ${getStatusColor(emp.status)}`}
+                      >
                         {emp.status}
                       </span>
                     </td>
-                    <td className="px-6 py-5 text-xs font-medium text-slate-500">
-                      {new Date(emp.joiningDate).toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' })}
+                    <td className="px-6 py-5 text-sm text-slate-500">
+                      {new Date(emp.joiningDate).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
                     </td>
                     <td className="pl-6 pr-10 py-5 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <a href={`mailto:${emp.emailOfficial}`} className="p-2 hover:bg-white rounded-lg text-slate-400 hover:text-blue-500 border border-transparent hover:border-slate-100 transition-all">
+                        <a
+                          href={`mailto:${emp.emailOfficial}`}
+                          className="p-2 hover:bg-white rounded-lg text-slate-400 hover:text-blue-500 border border-transparent hover:border-slate-100 transition-all"
+                        >
                           <Mail size={16} />
                         </a>
                         <button
@@ -276,7 +345,9 @@ function EmployeesList() {
 
 export default function EmployeesPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-slate-400">Loading Directory...</div>}>
+    <Suspense
+      fallback={<div className="p-8 text-slate-400">Loading Directory...</div>}
+    >
       <EmployeesList />
     </Suspense>
   );

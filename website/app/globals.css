@@ -1,7 +1,13 @@
 @import "tailwindcss";
 
 @theme {
-  --font-bricolage: var(--font-bricolage-grotesque), ui-sans-serif, system-ui, sans-serif;
-  --font-bricolage-grotesque: var(--font-bricolage-grotesque), ui-sans-serif, system-ui, sans-serif;
+  --font-bricolage:
+    var(--font-bricolage-grotesque), ui-sans-serif, system-ui, sans-serif;
+  --font-bricolage-grotesque:
+    var(--font-bricolage-grotesque), ui-sans-serif, system-ui, sans-serif;
   --color-primary: #0092ff;
+}
+
+button {
+  cursor: pointer;
 }
