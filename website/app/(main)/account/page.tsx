@@ -150,7 +150,7 @@ export default function AccountPage() {
     <div className="flex flex-col gap-10 w-full pb-20 max-w-5xl mx-auto">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-slate-900 font-bricolage-grotesque tracking-tight italic">
+        <h1 className="text-3xl font-bold text-slate-900 font-bricolage-grotesque tracking-tight">
           Account Settings
         </h1>
         <p className="text-slate-500 text-sm font-medium">
