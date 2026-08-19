@@ -478,11 +478,11 @@ async function seed() {
     }
 
     // -------------------------------------------------------------
-    // 7. Seed Attendance Records (Past 14 Days)
+    // 7. Seed Attendance Records (Past 14 Days including Today)
     // -------------------------------------------------------------
     console.log("7️⃣  Seeding recent attendance records...");
     const today = new Date();
-    for (let i = 1; i <= 14; i++) {
+    for (let i = 0; i <= 14; i++) {
       const d = new Date(today);
       d.setDate(today.getDate() - i);
       const dateStr = d.toISOString().split("T")[0];
@@ -502,38 +502,27 @@ async function seed() {
           );
 
         if (existingAtt.length === 0) {
-          const isLate = Math.random() < 0.15;
-          const isAbsent = Math.random() < 0.05;
+          const rand = Math.random();
+          let status = "PRESENT";
+          if (rand < 0.15) status = "LATE";
+          else if (rand < 0.25) status = "ABSENT";
 
-          let status = isLate ? "LATE" : "PRESENT";
-          let checkInHour = isLate ? 10 : 9;
+          let checkInHour = status === "LATE" ? 10 : 9;
           let checkIn = new Date(d);
           checkIn.setHours(checkInHour, Math.floor(Math.random() * 30), 0);
 
           let checkOut = new Date(d);
           checkOut.setHours(17, Math.floor(Math.random() * 45), 0);
 
-          let workHours = 8.0;
-
-          if (isAbsent) {
-            status = "ABSENT";
-            await db.insert(attendanceRecords).values({
-              employeeId: empObj.id,
-              date: dateStr,
-              status: "ABSENT",
-              remarks: "Unexcused absence",
-            });
-          } else {
-            await db.insert(attendanceRecords).values({
-              employeeId: empObj.id,
-              date: dateStr,
-              status: status,
-              checkInTime: checkIn,
-              checkOutTime: checkOut,
-              workHours: workHours,
-              remarks: isLate ? "Delayed due to traffic" : "Normal check-in",
-            });
-          }
+          await db.insert(attendanceRecords).values({
+            employeeId: empObj.id,
+            date: dateStr,
+            status: status,
+            checkInTime: status === "ABSENT" ? null : checkIn,
+            checkOutTime: status === "ABSENT" ? null : checkOut,
+            workHours: status === "ABSENT" ? 0 : 8.0,
+            remarks: status === "ABSENT" ? "Personal leave / sick day" : status === "LATE" ? "Traffic delay" : "Regular check-in",
+          });
         }
       }
     }
@@ -545,109 +534,105 @@ async function seed() {
     const clTypeId = getLeaveTypeId("CL");
     const slTypeId = getLeaveTypeId("SL");
     const plTypeId = getLeaveTypeId("PL");
+    const mlTypeId = getLeaveTypeId("ML");
 
     const johnEmpObj = insertedEmployeesMap.get("john.doe@harbor.hr");
     const janeEmpObj = insertedEmployeesMap.get("jane.smith@harbor.hr");
+    const alexEmpObj = insertedEmployeesMap.get("alex.wong@harbor.hr");
     const marcusEmpObj = insertedEmployeesMap.get("manager@harbor.hr");
+    const eleanorEmpObj = insertedEmployeesMap.get("hr@harbor.hr");
 
-    if (johnEmpObj && clTypeId && marcusEmpObj) {
-      await db.insert(leaveRequests).values({
-        employeeId: johnEmpObj.id,
-        leaveTypeId: clTypeId,
-        startDate: `${currentYear}-09-10`,
-        endDate: `${currentYear}-09-11`,
-        days: 2,
-        reason: "Personal work at home",
-        status: "APPROVED",
-        appliedAt: new Date(Date.now() - 5 * 86400000),
-        approverEmployeeId: marcusEmpObj.id,
-        decisionAt: new Date(Date.now() - 4 * 86400000),
-        decisionRemarks: "Approved. Handover done.",
-      });
+    const sampleLeaves = [
+      { emp: johnEmpObj, type: clTypeId, start: "2026-08-22", end: "2026-08-23", days: 2, reason: "Family event", status: "PENDING" },
+      { emp: janeEmpObj, type: slTypeId, start: "2026-08-20", end: "2026-08-21", days: 2, reason: "Doctor appointment & recovery", status: "PENDING" },
+      { emp: alexEmpObj, type: plTypeId, start: "2026-09-01", end: "2026-09-05", days: 5, reason: "Annual family vacation", status: "PENDING" },
+      { emp: johnEmpObj, type: mlTypeId, start: "2026-09-15", end: "2026-09-25", days: 10, reason: "Paternity leave", status: "PENDING" },
+      { emp: eleanorEmpObj, type: clTypeId, start: "2026-08-25", end: "2026-08-26", days: 2, reason: "Personal emergency", status: "APPROVED" },
+      { emp: marcusEmpObj, type: plTypeId, start: "2026-08-28", end: "2026-08-30", days: 3, reason: "Long weekend trip", status: "PENDING" },
+    ];
 
-      await db.insert(leaveRequests).values({
-        employeeId: johnEmpObj.id,
-        leaveTypeId: plTypeId || clTypeId,
-        startDate: `${currentYear}-10-01`,
-        endDate: `${currentYear}-10-05`,
-        days: 5,
-        reason: "Vacation with family",
-        status: "PENDING",
-        appliedAt: new Date(),
-      });
-    }
-
-    if (janeEmpObj && slTypeId && marcusEmpObj) {
-      await db.insert(leaveRequests).values({
-        employeeId: janeEmpObj.id,
-        leaveTypeId: slTypeId,
-        startDate: `${currentYear}-08-01`,
-        endDate: `${currentYear}-08-01`,
-        days: 1,
-        reason: "Fever and doctor appointment",
-        status: "APPROVED",
-        appliedAt: new Date(Date.now() - 15 * 86400000),
-        approverEmployeeId: marcusEmpObj.id,
-        decisionAt: new Date(Date.now() - 14 * 86400000),
-        decisionRemarks: "Get well soon!",
-      });
+    for (const item of sampleLeaves) {
+      if (item.emp && item.type) {
+        await db.insert(leaveRequests).values({
+          employeeId: item.emp.id,
+          leaveTypeId: item.type,
+          startDate: item.start,
+          endDate: item.end,
+          days: item.days,
+          reason: item.reason,
+          status: item.status,
+          appliedAt: new Date(),
+          approverEmployeeId: marcusEmpObj ? marcusEmpObj.id : null,
+        });
+      }
     }
 
     // -------------------------------------------------------------
     // 9. Seed Tasks & Task Comments
     // -------------------------------------------------------------
     console.log("9️⃣  Seeding tasks and activity comments...");
-    if (marcusEmpObj && johnEmpObj && janeEmpObj) {
-      const [t1] = await db
-        .insert(tasks)
-        .values({
+    if (marcusEmpObj && johnEmpObj && janeEmpObj && alexEmpObj) {
+      const taskList = [
+        {
           title: "Implement OAuth2 Authentication Flow",
-          description: "Integrate Google & GitHub OAuth2 providers for user single sign-on.",
-          assignedByEmployeeId: marcusEmpObj.id,
-          assignedToEmployeeId: johnEmpObj.id,
+          desc: "Integrate Google & GitHub OAuth2 providers for user single sign-on.",
+          assignedTo: johnEmpObj.id,
           status: "IN_PROGRESS",
           priority: "HIGH",
-          dueDate: `${currentYear}-09-01`,
-        })
-        .returning();
-
-      const [t2] = await db
-        .insert(tasks)
-        .values({
+          dueDate: "2026-08-25",
+        },
+        {
           title: "Redesign Employee Dashboard Wireframes",
-          description: "Create responsive Figma component library and dashboard mockups.",
-          assignedByEmployeeId: marcusEmpObj.id,
-          assignedToEmployeeId: janeEmpObj.id,
-          status: "COMPLETED",
+          desc: "Create responsive Figma component library and dashboard mockups.",
+          assignedTo: janeEmpObj.id,
+          status: "IN_PROGRESS",
           priority: "URGENT",
-          dueDate: `${currentYear}-08-15`,
-        })
-        .returning();
-
-      const [t3] = await db
-        .insert(tasks)
-        .values({
+          dueDate: "2026-08-22",
+        },
+        {
           title: "Setup Automated CI/CD Pipeline for Microservices",
-          description: "Write GitHub Actions workflow scripts to run Jest unit tests and Docker image builds.",
-          assignedByEmployeeId: marcusEmpObj.id,
-          assignedToEmployeeId: johnEmpObj.id,
+          desc: "Write GitHub Actions workflow scripts to run Jest unit tests and Docker image builds.",
+          assignedTo: johnEmpObj.id,
           status: "TO_DO",
           priority: "MEDIUM",
-          dueDate: `${currentYear}-09-15`,
-        })
-        .returning();
+          dueDate: "2026-08-28",
+        },
+        {
+          title: "Q3 Sales Performance & Forecast Report",
+          desc: "Compile revenue forecasts and market trend analysis for leadership meeting.",
+          assignedTo: alexEmpObj.id,
+          status: "IN_PROGRESS",
+          priority: "HIGH",
+          dueDate: "2026-08-24",
+        },
+        {
+          title: "Audit Role-Based Access Control Permissions",
+          desc: "Verify user permissions across security groups and departments.",
+          assignedTo: janeEmpObj.id,
+          status: "TO_DO",
+          priority: "LOW",
+          dueDate: "2026-08-30",
+        },
+      ];
 
-      if (t1) {
-        await db.insert(taskComments).values({
-          taskId: t1.id,
-          employeeId: johnEmpObj.id,
-          comment: "Finished initial JWT token handling. Working on Google OAuth refresh tokens now.",
-        });
-        await db.insert(taskComments).values({
-          taskId: t1.id,
-          employeeId: marcusEmpObj.id,
-          comment: "Great progress! Make sure security token rotation is properly handled.",
-        });
+      for (const t of taskList) {
+        const [insertedTask] = await db.insert(tasks).values({
+          title: t.title,
+          description: t.desc,
+          assignedByEmployeeId: marcusEmpObj.id,
+          assignedToEmployeeId: t.assignedTo,
+          status: t.status,
+          priority: t.priority,
+          dueDate: t.dueDate,
+        }).returning();
+
+        if (insertedTask) {
+          await db.insert(taskComments).values({
+            taskId: insertedTask.id,
+            employeeId: t.assignedTo,
+            comment: "Started working on this task. Target completion on schedule.",
+          });
+        }
       }
     }
 

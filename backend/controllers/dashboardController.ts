@@ -24,19 +24,21 @@ export const getDashboardSummary = async (req: Request, res: Response) => {
       .where(eq(attendanceRecords.date, today))
       .groupBy(attendanceRecords.status);
 
-    const presentToday = attendanceToday.find((a: any) => a.status === "Present")?.count || 0;
+    const presentToday = attendanceToday
+      .filter((a: any) => ["PRESENT", "LATE", "Present", "Late"].includes(a.status))
+      .reduce((acc: number, curr: any) => acc + (curr.count || 0), 0);
 
     // 4. Pending Leave Requests
     const pendingLeavesCount = await db
       .select({ value: count(leaveRequests.id) })
       .from(leaveRequests)
-      .where(eq(leaveRequests.status, "PENDING"));
+      .where(sql`upper(${leaveRequests.status}) = 'PENDING'`);
 
     // 5. Active Tasks
     const activeTasksCount = await db
       .select({ value: count(tasks.id) })
       .from(tasks)
-      .where(eq(tasks.status, "IN_PROGRESS"));
+      .where(sql`upper(${tasks.status}) in ('IN_PROGRESS', 'TO_DO')`);
 
     // 6. Attendance Trend (Last 30 days)
     const thirtyDaysAgo = new Date();
@@ -46,8 +48,8 @@ export const getDashboardSummary = async (req: Request, res: Response) => {
     const attendanceTrend = await db
       .select({
         date: attendanceRecords.date,
-        present: sql<number>`count(case when ${attendanceRecords.status} = 'Present' then 1 end)::int`,
-        absent: sql<number>`count(case when ${attendanceRecords.status} = 'Absent' then 1 end)::int`,
+        present: sql<number>`count(case when upper(${attendanceRecords.status}) in ('PRESENT', 'LATE') then 1 end)::int`,
+        absent: sql<number>`count(case when upper(${attendanceRecords.status}) = 'ABSENT' then 1 end)::int`,
       })
       .from(attendanceRecords)
       .where(gte(attendanceRecords.date, thirtyDaysAgoStr))
@@ -79,7 +81,7 @@ export const getDashboardSummary = async (req: Request, res: Response) => {
       .from(leaveRequests)
       .innerJoin(employees, eq(leaveRequests.employeeId, employees.id))
       .innerJoin(leaveTypes, eq(leaveRequests.leaveTypeId, leaveTypes.id))
-      .where(eq(leaveRequests.status, "PENDING"))
+      .where(sql`upper(${leaveRequests.status}) = 'PENDING'`)
       .orderBy(desc(leaveRequests.appliedAt))
       .limit(5);
 
@@ -95,7 +97,7 @@ export const getDashboardSummary = async (req: Request, res: Response) => {
       })
       .from(tasks)
       .innerJoin(employees, eq(tasks.assignedToEmployeeId, employees.id))
-      .where(eq(tasks.status, "PENDING")) // Show pending tasks as upcoming
+      .where(sql`upper(${tasks.status}) in ('PENDING', 'TO_DO', 'IN_PROGRESS')`)
       .orderBy(tasks.dueDate)
       .limit(6);
 
